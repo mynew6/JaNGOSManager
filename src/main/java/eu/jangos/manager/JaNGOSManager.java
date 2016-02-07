@@ -1,5 +1,21 @@
 package eu.jangos.manager;
 
+/*
+ * Copyright 2016 Warkdev.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import eu.jangos.manager.gui.dialog.DialogAbout;
 import eu.jangos.manager.gui.frame.FrameManageAccount;
 import eu.jangos.manager.utils.Utils;
@@ -15,15 +31,15 @@ import org.slf4j.LoggerFactory;
  *
  * @author Warkdev
  */
-public class JE4WManager extends JFrame {
+public class JaNGOSManager extends JFrame {
 
-    private static final Logger logger = LoggerFactory.getLogger(JE4WManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(JaNGOSManager.class);
     private static final String ICON_IMAGE = "/images/world-icon.png";   
 
     /**
      * Creates new form JE4WManagerWindow
      */
-    public JE4WManager() {
+    public JaNGOSManager() {
         initComponents();
         this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);        
         this.setIconImage(Utils.createImageIcon(ICON_IMAGE, getClass()).getImage());
@@ -55,7 +71,7 @@ public class JE4WManager extends JFrame {
         jMenuItemAbout = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("JE4W Manager Application");
+        setTitle("JaNGOS Manager Application");
         setIconImage(getIconImage());
 
         javax.swing.GroupLayout jDesktopMainPaneLayout = new javax.swing.GroupLayout(jDesktopMainPane);
@@ -150,7 +166,7 @@ public class JE4WManager extends JFrame {
         try {
             fManageAccount.setMaximum(true);
         } catch (PropertyVetoException ex) {
-            java.util.logging.Logger.getLogger(JE4WManager.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(JaNGOSManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jMenuManageAccountsMouseReleased
 
@@ -173,21 +189,23 @@ public class JE4WManager extends JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(JE4WManager.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(JaNGOSManager.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(JE4WManager.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(JaNGOSManager.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(JE4WManager.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(JaNGOSManager.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(JE4WManager.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(JaNGOSManager.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new JE4WManager().setVisible(true);
+                new JaNGOSManager().setVisible(true);
             }
         });
     }

@@ -1,3 +1,9 @@
+### Java template
+*.class
+
+# Created by .ignore support plugin (hsz.mobi)
+target/
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
@@ -31,9 +37,13 @@ $RECYCLE.BIN/
 # Thumbnails
 ._*
 
-# Files that might appear on external disk
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
 .Spotlight-V100
+.TemporaryItems
 .Trashes
+.VolumeIcon.icns
 
 # Directories potentially created on remote AFP share
 .AppleDB

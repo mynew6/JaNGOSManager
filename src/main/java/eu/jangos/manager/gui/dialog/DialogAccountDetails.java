@@ -1,22 +1,34 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package eu.jangos.manager.gui.dialog;
 
-import eu.jangos.manager.JE4WManager;
+/*
+ * Copyright 2016 Warkdev.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import eu.jangos.manager.JaNGOSManager;
 import javax.swing.JOptionPane;
 
 /**
  *
- * @author Cedric
+ * @author Warkdev.
+ * @version v0.1
  */
 public class DialogAccountDetails extends javax.swing.JDialog {    
     
     /**
      * Creates new form JDialogAddAccount
-     * @param parent Parent frame, must be JE4WManager frame.
+     * @param parent Parent frame, must be JaNGOSManager frame.
      * @param modal indicates whether this dialog is modal or not.
      */
     public DialogAccountDetails(java.awt.Frame parent, boolean modal) {

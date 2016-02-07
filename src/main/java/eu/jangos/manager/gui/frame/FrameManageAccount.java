@@ -1,12 +1,24 @@
 package eu.jangos.manager.gui.frame;
 
-import eu.jangos.auth.dto.AccountDTO;
-import eu.jangos.auth.enums.LockType;
-import eu.jangos.manager.exception.ErrorMessage;
-import eu.jangos.manager.network.AccountService;
+/*
+ * Copyright 2016 Warkdev.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
 import java.awt.event.ItemEvent;
 import java.util.List;
-import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import org.slf4j.Logger;
@@ -15,13 +27,13 @@ import org.slf4j.LoggerFactory;
 /**
  *
  * @author Warkdev
+ * @version v0.1
  */
 public class FrameManageAccount extends javax.swing.JInternalFrame {
     private static final Logger logger = LoggerFactory.getLogger(FrameManageAccount.class);
     
-    private final AccountService as;
-
-    private LockType lockType = LockType.BOTH;
+    //private final AccountService as;
+    
     /**
      * Creates new form FrameManageAccount
      */
@@ -30,8 +42,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         // Sort this table by name per default.
         this.jTableAccounts.getRowSorter().toggleSortOrder(0);
         
-        this.jTableAccountsModel = (DefaultTableModel) this.jTableAccounts.getModel();
-        this.as = new AccountService();                                                    
+        this.jTableAccountsModel = (DefaultTableModel) this.jTableAccounts.getModel();                                                          
     }    
     
     /**
@@ -175,7 +186,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+/**
     private void updateTable(AccountDTO account)
     {
         boolean ban = as.isAccountBanned(account.getId());
@@ -188,48 +199,34 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
             updateTable(account);
         }
     }
-    
+    */
     private void jButtonSearchMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonSearchMouseReleased
         String search = this.jTFName.getText().replaceAll("[^\\dA-Za-z ]", "").replaceAll("\\s+", "+");        
         
-        this.jTableAccountsModel.setRowCount(0);  
-        
-        logger.debug("Search parameters: name="+search+", lock: "+lockType);
+        this.jTableAccountsModel.setRowCount(0);              
         
         if(search.isEmpty())
-        {
-            try {
-                updateTable(as.getAllAccounts(lockType));
-            } catch (ErrorMessage ex) {
-                showWarning("Warning", ex.getMessage());
-            }
+        {            
             return;
         }                
         
         this.jTFName.setText(search);     
-        
-        try {
-            updateTable(as.getAccount(search, this.jCBMatch.isSelected(), lockType));
-        } catch (ErrorMessage ex) {                        
-            showWarning("Warning", ex.getMessage());            
-        } catch (Exception e) {
-            showError("Error", "Problem handling the request. Make sure your back-end are up-and-running.");
-        }
+                    
     }//GEN-LAST:event_jButtonSearchMouseReleased
 
     private void jRadioButtonLockBothItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jRadioButtonLockBothItemStateChanged
-        if(evt.getStateChange() == ItemEvent.SELECTED)
-            this.lockType = LockType.BOTH;
+       // if(evt.getStateChange() == ItemEvent.SELECTED)
+        //    this.lockType = LockType.BOTH;
     }//GEN-LAST:event_jRadioButtonLockBothItemStateChanged
 
     private void jRadioButtonUnlockedItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jRadioButtonUnlockedItemStateChanged
-        if(evt.getStateChange() == ItemEvent.SELECTED)
-            this.lockType = LockType.UNLOCKED;
+       // if(evt.getStateChange() == ItemEvent.SELECTED)
+//            this.lockType = LockType.UNLOCKED;
     }//GEN-LAST:event_jRadioButtonUnlockedItemStateChanged
 
     private void jRadioButtonLockedItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jRadioButtonLockedItemStateChanged
-        if(evt.getStateChange() == ItemEvent.SELECTED)
-            this.lockType = LockType.LOCKED;
+      //  if(evt.getStateChange() == ItemEvent.SELECTED)
+     //       this.lockType = LockType.LOCKED;
     }//GEN-LAST:event_jRadioButtonLockedItemStateChanged
  
     private void showWarning(String title, String message)

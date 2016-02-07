@@ -1,25 +1,30 @@
 package eu.jangos.manager.utils;
 
-import eu.jangos.manager.network.ClientFactory;
-import java.io.File;
+/*
+ * Copyright 2016 Warkdev.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import java.net.URL;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.List;
-import java.util.Locale;
 import javax.swing.ImageIcon;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Invocation.Builder;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
 
 /**
  * Utils provide a set of common functions used by this manager.
- * @author Warkdev
- * @version 
+ * @author Warkdev.
+ * @version v0.1
  */
-public class Utils {
-    private static final Client client = ClientFactory.getClient();
+public class Utils {   
     
     /**
      * Create an Image icon from the provided path.
@@ -33,11 +38,6 @@ public class Utils {
         } else {            
             return null;
         }
-    }
-    
-    public static Builder getBuilder(String url)
-    {        
-        return client.target(url).request(MediaType.TEXT_PLAIN).accept(MediaType.APPLICATION_JSON);
     }        
     
     /**

@@ -27,7 +27,7 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="jLabelAbout">
       <Properties>
-        <Property name="text" type="java.lang.String" value="&lt;html&gt;je4W Manager is the management application for je4W based servers. &lt;br/&gt; &lt;br/&gt; &lt;br/&gt; Author: Warkdev &lt;br/&gt; Version: v0.1 BETA&lt;/html&gt;"/>
+        <Property name="text" type="java.lang.String" value="&lt;html&gt;JaNGOS Manager is the management application for JaNGOS based servers. &lt;br/&gt; &lt;br/&gt; &lt;br/&gt; Author: Warkdev &lt;br/&gt; Version: v0.1 BETA&lt;/html&gt;"/>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
