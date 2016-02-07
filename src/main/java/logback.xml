@@ -10,5 +10,5 @@
         <appender-ref ref="STDOUT"/>
     </root>
     
-    <logger name="be.jE4W" level="DEBUG"/>
+    <logger name="eu.jangos" level="DEBUG"/>
 </configuration>
