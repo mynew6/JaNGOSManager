@@ -17,22 +17,23 @@ package eu.jangos.manager.gui.frame;
  */
 
 
-import java.awt.event.ItemEvent;
-import java.util.List;
+import eu.jangos.manager.controller.AccountService;
+import eu.jangos.manager.controller.filters.BooleanType;
+import eu.jangos.manager.controller.filters.DateType;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * FrameManageAccount is the screen that will handle all the accounts related activities.
  * @author Warkdev
  * @version v0.1
  */
 public class FrameManageAccount extends javax.swing.JInternalFrame {
     private static final Logger logger = LoggerFactory.getLogger(FrameManageAccount.class);
     
-    //private final AccountService as;
+    private final AccountService as;
     
     /**
      * Creates new form FrameManageAccount
@@ -42,7 +43,8 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         // Sort this table by name per default.
         this.jTableAccounts.getRowSorter().toggleSortOrder(0);
         
-        this.jTableAccountsModel = (DefaultTableModel) this.jTableAccounts.getModel();                                                          
+        this.jTableAccountsModel = (DefaultTableModel) this.jTableAccounts.getModel();     
+        this.as = new AccountService();        
     }    
     
     /**
@@ -202,6 +204,8 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
     */
     private void jButtonSearchMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonSearchMouseReleased
         String search = this.jTFName.getText().replaceAll("[^\\dA-Za-z ]", "").replaceAll("\\s+", "+");        
+        
+        this.as.getAllAccounts("%", DateType.NONE, null, null, DateType.NONE, null, null, BooleanType.BOTH, BooleanType.BOTH, BooleanType.BOTH);
         
         this.jTableAccountsModel.setRowCount(0);              
         
