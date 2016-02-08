@@ -15,38 +15,70 @@ package eu.jangos.manager.gui.frame;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 import eu.jangos.manager.controller.AccountService;
 import eu.jangos.manager.controller.filters.BooleanType;
 import eu.jangos.manager.controller.filters.DateType;
+import eu.jangos.manager.model.Account;
+import eu.jangos.manager.utils.Utils;
+import java.awt.event.ItemEvent;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * FrameManageAccount is the screen that will handle all the accounts related activities.
+ * FrameManageAccount is the screen that will handle all the accounts related
+ * activities.
+ *
  * @author Warkdev
  * @version v0.1
  */
 public class FrameManageAccount extends javax.swing.JInternalFrame {
+
     private static final Logger logger = LoggerFactory.getLogger(FrameManageAccount.class);
-    
+    private static final String ICON_IMAGE = "/images/account.png";
+
     private final AccountService as;
-    
+    private BooleanType locked;
+    private BooleanType banned;
+    private BooleanType online;
+    private DateType login;
+    private DateType creation;
+
     /**
      * Creates new form FrameManageAccount
      */
     public FrameManageAccount() {
         initComponents();
-        // Sort this table by name per default.
+        // Sort this table by name per default.        
+        this.setFrameIcon(Utils.createImageIcon(ICON_IMAGE, getClass()));
+
         this.jTableAccounts.getRowSorter().toggleSortOrder(0);
+
+        this.jTableAccountsModel = (DefaultTableModel) this.jTableAccounts.getModel();
+        this.as = new AccountService();
+
+        this.locked = BooleanType.BOTH;
+        this.banned = BooleanType.BOTH;
+        this.online = BooleanType.BOTH;
+        this.login = DateType.NONE;
+        this.creation = DateType.NONE;
         
-        this.jTableAccountsModel = (DefaultTableModel) this.jTableAccounts.getModel();     
-        this.as = new AccountService();        
-    }    
-    
+        Date now = new Date();
+        this.jDatePickerCreationFrom.setLocale(Locale.UK);
+        this.jDatePickerCreationTo.setLocale(Locale.UK);
+        this.jDatePickerLoginFrom.setLocale(Locale.UK);
+        this.jDatePickerLoginTo.setLocale(Locale.UK);
+        this.jDatePickerCreationFrom.setDate(now);
+        this.jDatePickerCreationTo.setDate(now);
+        this.jDatePickerLoginFrom.setDate(now);
+        this.jDatePickerLoginTo.setDate(now);
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -64,12 +96,34 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         jLabelName = new javax.swing.JLabel();
         jTFName = new javax.swing.JTextField();
         jCBMatch = new javax.swing.JCheckBox();
-        jRadioButtonLocked = new javax.swing.JRadioButton();
-        jRadioButtonUnlocked = new javax.swing.JRadioButton();
-        jRadioButtonLockBoth = new javax.swing.JRadioButton();
         jButtonSearch = new javax.swing.JButton();
+        jLabelLock = new javax.swing.JLabel();
+        jCBLock = new javax.swing.JComboBox();
+        jLabelBan = new javax.swing.JLabel();
+        jCBBan = new javax.swing.JComboBox();
+        jLabelOnline = new javax.swing.JLabel();
+        jCBOnline = new javax.swing.JComboBox();
+        jPanelCreation = new javax.swing.JPanel();
+        jLabelCreationFilter = new javax.swing.JLabel();
+        jCBCreationFilter = new javax.swing.JComboBox();
+        jLabelCreationFrom = new javax.swing.JLabel();
+        jDatePickerCreationFrom = new org.jdesktop.swingx.JXDatePicker();
+        jLabelCreationTo = new javax.swing.JLabel();
+        jDatePickerCreationTo = new org.jdesktop.swingx.JXDatePicker();
+        jPanelLogin = new javax.swing.JPanel();
+        jLabelLoginFilter = new javax.swing.JLabel();
+        jCBLoginFilter = new javax.swing.JComboBox();
+        jLabelLoginFrom = new javax.swing.JLabel();
+        jDatePickerLoginFrom = new org.jdesktop.swingx.JXDatePicker();
+        jLabelLoginTo = new javax.swing.JLabel();
+        jDatePickerLoginTo = new org.jdesktop.swingx.JXDatePicker();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setClosable(true);
+        setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
+        setIconifiable(true);
+        setMaximizable(true);
+        setResizable(true);
+        setTitle("Account Management");
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         jTableAccounts.setAutoCreateRowSorter(true);
@@ -78,14 +132,14 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
 
             },
             new String [] {
-                "Name", "Email", "Creation", "Locked", "Banned"
+                "Name", "Email", "Creation", "Locked"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Boolean.class, java.lang.Boolean.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
+                false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -112,13 +166,14 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         jPanelControls.setBorder(javax.swing.BorderFactory.createTitledBorder("Controls"));
         jPanelControls.setLayout(new java.awt.GridBagLayout());
 
+        jLabelName.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         jLabelName.setText("Name:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         jPanelControls.add(jLabelName, gridBagConstraints);
 
-        jTFName.setMinimumSize(new java.awt.Dimension(70, 20));
+        jTFName.setMinimumSize(new java.awt.Dimension(89, 20));
         jTFName.setPreferredSize(new java.awt.Dimension(150, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -127,47 +182,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
 
         jCBMatch.setText("Match");
         jCBMatch.setToolTipText("Retrieve only account matching the name");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        jPanelControls.add(jCBMatch, gridBagConstraints);
-
-        buttonGroupLocked.add(jRadioButtonLocked);
-        jRadioButtonLocked.setText("Locked");
-        jRadioButtonLocked.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jRadioButtonLockedItemStateChanged(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        jPanelControls.add(jRadioButtonLocked, gridBagConstraints);
-
-        buttonGroupLocked.add(jRadioButtonUnlocked);
-        jRadioButtonUnlocked.setText("Unlocked");
-        jRadioButtonUnlocked.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jRadioButtonUnlockedItemStateChanged(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        jPanelControls.add(jRadioButtonUnlocked, gridBagConstraints);
-
-        buttonGroupLocked.add(jRadioButtonLockBoth);
-        jRadioButtonLockBoth.setSelected(true);
-        jRadioButtonLockBoth.setText("Both");
-        jRadioButtonLockBoth.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                jRadioButtonLockBothItemStateChanged(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
-        jPanelControls.add(jRadioButtonLockBoth, gridBagConstraints);
+        jPanelControls.add(jCBMatch, new java.awt.GridBagConstraints());
 
         jButtonSearch.setText("Search");
         jButtonSearch.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -180,6 +195,171 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints.gridy = 10;
         jPanelControls.add(jButtonSearch, gridBagConstraints);
 
+        jLabelLock.setText("Lock:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        jPanelControls.add(jLabelLock, gridBagConstraints);
+
+        jCBLock.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "BOTH", "LOCKED", "UNLOCKED" }));
+        jCBLock.setMinimumSize(new java.awt.Dimension(89, 20));
+        jCBLock.setPreferredSize(new java.awt.Dimension(89, 20));
+        jCBLock.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jCBLockItemStateChanged(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        jPanelControls.add(jCBLock, gridBagConstraints);
+
+        jLabelBan.setText("Ban:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        jPanelControls.add(jLabelBan, gridBagConstraints);
+
+        jCBBan.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "BOTH", "BANNED", "NOT BANNED" }));
+        jCBBan.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jCBBanItemStateChanged(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        jPanelControls.add(jCBBan, gridBagConstraints);
+
+        jLabelOnline.setText("Online:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        jPanelControls.add(jLabelOnline, gridBagConstraints);
+
+        jCBOnline.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "BOTH", "Online", "Offline" }));
+        jCBOnline.setMinimumSize(new java.awt.Dimension(89, 20));
+        jCBOnline.setPreferredSize(new java.awt.Dimension(89, 20));
+        jCBOnline.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jCBOnlineItemStateChanged(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        jPanelControls.add(jCBOnline, gridBagConstraints);
+
+        jPanelCreation.setBorder(javax.swing.BorderFactory.createTitledBorder("Creation"));
+        jPanelCreation.setLayout(new java.awt.GridBagLayout());
+
+        jLabelCreationFilter.setText("Filter:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        jPanelCreation.add(jLabelCreationFilter, gridBagConstraints);
+
+        jCBCreationFilter.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "NONE", "BEFORE", "AFTER", "BETWEEN" }));
+        jCBCreationFilter.setMinimumSize(new java.awt.Dimension(89, 20));
+        jCBCreationFilter.setPreferredSize(new java.awt.Dimension(89, 20));
+        jCBCreationFilter.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jCBCreationFilterItemStateChanged(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        jPanelCreation.add(jCBCreationFilter, gridBagConstraints);
+
+        jLabelCreationFrom.setText("From:");
+        jLabelCreationFrom.setEnabled(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        jPanelCreation.add(jLabelCreationFrom, gridBagConstraints);
+
+        jDatePickerCreationFrom.setEnabled(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        jPanelCreation.add(jDatePickerCreationFrom, gridBagConstraints);
+
+        jLabelCreationTo.setText("To:");
+        jLabelCreationTo.setEnabled(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 4;
+        jPanelCreation.add(jLabelCreationTo, gridBagConstraints);
+
+        jDatePickerCreationTo.setEnabled(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 4;
+        jPanelCreation.add(jDatePickerCreationTo, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanelControls.add(jPanelCreation, gridBagConstraints);
+
+        jPanelLogin.setBorder(javax.swing.BorderFactory.createTitledBorder("Login"));
+        jPanelLogin.setLayout(new java.awt.GridBagLayout());
+
+        jLabelLoginFilter.setText("Filter:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        jPanelLogin.add(jLabelLoginFilter, gridBagConstraints);
+
+        jCBLoginFilter.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "NONE", "BEFORE", "AFTER", "BETWEEN" }));
+        jCBLoginFilter.setMinimumSize(new java.awt.Dimension(89, 20));
+        jCBLoginFilter.setPreferredSize(new java.awt.Dimension(89, 20));
+        jCBLoginFilter.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jCBLoginFilterItemStateChanged(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        jPanelLogin.add(jCBLoginFilter, gridBagConstraints);
+
+        jLabelLoginFrom.setText("From:");
+        jLabelLoginFrom.setEnabled(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        jPanelLogin.add(jLabelLoginFrom, gridBagConstraints);
+
+        jDatePickerLoginFrom.setEnabled(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        jPanelLogin.add(jDatePickerLoginFrom, gridBagConstraints);
+
+        jLabelLoginTo.setText("To:");
+        jLabelLoginTo.setEnabled(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 4;
+        jPanelLogin.add(jLabelLoginTo, gridBagConstraints);
+
+        jDatePickerLoginTo.setEnabled(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 4;
+        jPanelLogin.add(jDatePickerLoginTo, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        jPanelControls.add(jPanelLogin, gridBagConstraints);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -188,70 +368,188 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-/**
-    private void updateTable(AccountDTO account)
-    {
-        boolean ban = as.isAccountBanned(account.getId());
-        this.jTableAccountsModel.addRow(new Object[]{account.getName(), account.getEmail(), account.getCreation(), account.getLocked(), ban});            
+
+    private void updateTable(Account account) {
+        this.jTableAccountsModel.addRow(new Object[]{account.getName(), account.getEmail(), account.getCreation(),
+            account.isLocked()});
     }
-    
-    private void updateTable(List<AccountDTO> listAccounts)
-    {        
-        for (AccountDTO account : listAccounts) {
+
+    private void updateTable(List<Account> listAccounts) {
+        for (Account account : listAccounts) {
             updateTable(account);
         }
     }
-    */
+
     private void jButtonSearchMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonSearchMouseReleased
-        String search = this.jTFName.getText().replaceAll("[^\\dA-Za-z ]", "").replaceAll("\\s+", "+");        
-        
-        this.as.getAllAccounts("%", DateType.NONE, null, null, DateType.NONE, null, null, BooleanType.BOTH, BooleanType.BOTH, BooleanType.BOTH);
-        
-        this.jTableAccountsModel.setRowCount(0);              
-        
-        if(search.isEmpty())
-        {            
+        String search = this.jTFName.getText().replaceAll("[^\\dA-Za-z ]", "").replaceAll("\\s+", "+");
+
+        this.jTableAccountsModel.setRowCount(0);
+
+        this.jTFName.setText(search);
+
+        if (!this.jCBMatch.isSelected()) {
+            search += "%";
+        }
+
+        if (search.isEmpty()) {
             return;
-        }                
-        
-        this.jTFName.setText(search);     
-                    
+        }
+
+        updateTable(this.as.getAllAccounts(search, creation, this.jDatePickerCreationFrom.getDate(), this.jDatePickerCreationTo.getDate(), login, this.jDatePickerLoginFrom.getDate(), this.jDatePickerLoginTo.getDate(), locked, banned, online));
     }//GEN-LAST:event_jButtonSearchMouseReleased
 
-    private void jRadioButtonLockBothItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jRadioButtonLockBothItemStateChanged
-       // if(evt.getStateChange() == ItemEvent.SELECTED)
-        //    this.lockType = LockType.BOTH;
-    }//GEN-LAST:event_jRadioButtonLockBothItemStateChanged
+    private void jCBLockItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCBLockItemStateChanged
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            switch (this.jCBLock.getSelectedIndex()) {
+                case 0:
+                    this.locked = BooleanType.BOTH;
+                    break;
+                case 1:
+                    this.locked = BooleanType.TRUE;
+                    break;
+                case 2:
+                    this.locked = BooleanType.FALSE;
+                    break;
+            }
+        }
+    }//GEN-LAST:event_jCBLockItemStateChanged
 
-    private void jRadioButtonUnlockedItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jRadioButtonUnlockedItemStateChanged
-       // if(evt.getStateChange() == ItemEvent.SELECTED)
-//            this.lockType = LockType.UNLOCKED;
-    }//GEN-LAST:event_jRadioButtonUnlockedItemStateChanged
+    private void jCBBanItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCBBanItemStateChanged
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            switch (this.jCBBan.getSelectedIndex()) {
+                case 0:
+                    this.banned = BooleanType.BOTH;
+                    break;
+                case 1:
+                    this.banned = BooleanType.TRUE;
+                    break;
+                case 2:
+                    this.banned = BooleanType.FALSE;
+                    break;
+            }
+        }
+    }//GEN-LAST:event_jCBBanItemStateChanged
 
-    private void jRadioButtonLockedItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jRadioButtonLockedItemStateChanged
-      //  if(evt.getStateChange() == ItemEvent.SELECTED)
-     //       this.lockType = LockType.LOCKED;
-    }//GEN-LAST:event_jRadioButtonLockedItemStateChanged
- 
-    private void showWarning(String title, String message)
-    {
+    private void jCBOnlineItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCBOnlineItemStateChanged
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            switch (this.jCBOnline.getSelectedIndex()) {
+                case 0:
+                    this.online = BooleanType.BOTH;
+                    break;
+                case 1:
+                    this.online = BooleanType.TRUE;
+                    break;
+                case 2:
+                    this.online = BooleanType.FALSE;
+                    break;
+            }
+        }
+    }//GEN-LAST:event_jCBOnlineItemStateChanged
+
+    private void jCBCreationFilterItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCBCreationFilterItemStateChanged
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            switch (this.jCBCreationFilter.getSelectedIndex()) {
+                case 0:
+                    this.creation = DateType.NONE;
+                    this.jDatePickerCreationFrom.setEnabled(false);
+                    this.jLabelCreationFrom.setEnabled(false);
+                    this.jDatePickerCreationTo.setEnabled(false);
+                    this.jLabelCreationTo.setEnabled(false);
+                    break;
+                case 1:
+                    this.creation = DateType.BEFORE;
+                    this.jDatePickerCreationFrom.setEnabled(true);
+                    this.jLabelCreationFrom.setEnabled(true);
+                    this.jDatePickerCreationTo.setEnabled(false);
+                    this.jLabelCreationTo.setEnabled(false);
+                    break;
+                case 2:
+                    this.creation = DateType.AFTER;
+                    this.jDatePickerCreationFrom.setEnabled(true);
+                    this.jLabelCreationFrom.setEnabled(true);
+                    this.jDatePickerCreationTo.setEnabled(false);
+                    this.jLabelCreationTo.setEnabled(false);
+                    break;
+                case 3:
+                    this.creation = DateType.BETWEEN;
+                    this.jDatePickerCreationFrom.setEnabled(true);
+                    this.jLabelCreationFrom.setEnabled(true);
+                    this.jDatePickerCreationTo.setEnabled(true);
+                    this.jLabelCreationTo.setEnabled(true);
+                    break;
+            }
+        }
+    }//GEN-LAST:event_jCBCreationFilterItemStateChanged
+
+    private void jCBLoginFilterItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCBLoginFilterItemStateChanged
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            switch (this.jCBLoginFilter.getSelectedIndex()) {
+                case 0:
+                    this.login = DateType.NONE;
+                    this.jDatePickerLoginFrom.setEnabled(false);
+                    this.jLabelLoginFrom.setEnabled(false);
+                    this.jDatePickerLoginTo.setEnabled(false);
+                    this.jLabelLoginTo.setEnabled(false);
+                    break;
+                case 1:
+                    this.login = DateType.BEFORE;
+                    this.jDatePickerLoginFrom.setEnabled(true);
+                    this.jLabelLoginFrom.setEnabled(true);
+                    this.jDatePickerLoginTo.setEnabled(false);
+                    this.jLabelLoginTo.setEnabled(false);
+                    break;
+                case 2:
+                    this.login = DateType.AFTER;
+                    this.jDatePickerLoginFrom.setEnabled(true);
+                    this.jLabelLoginFrom.setEnabled(true);
+                    this.jDatePickerLoginTo.setEnabled(false);
+                    this.jLabelLoginTo.setEnabled(false);
+                    break;
+                case 3:
+                    this.login = DateType.BETWEEN;
+                    this.jDatePickerLoginFrom.setEnabled(true);
+                    this.jLabelLoginFrom.setEnabled(true);
+                    this.jDatePickerLoginTo.setEnabled(true);
+                    this.jLabelLoginTo.setEnabled(true);
+                    break;
+            }
+        }
+    }//GEN-LAST:event_jCBLoginFilterItemStateChanged
+
+    private void showWarning(String title, String message) {
         JOptionPane.showMessageDialog(this, message, title, JOptionPane.WARNING_MESSAGE);
     }
-    
-    private void showError(String title, String message)
-    {
+
+    private void showError(String title, String message) {
         JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
     }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroupLocked;
     private javax.swing.JButton jButtonSearch;
+    private javax.swing.JComboBox jCBBan;
+    private javax.swing.JComboBox jCBCreationFilter;
+    private javax.swing.JComboBox jCBLock;
+    private javax.swing.JComboBox jCBLoginFilter;
     private javax.swing.JCheckBox jCBMatch;
+    private javax.swing.JComboBox jCBOnline;
+    private org.jdesktop.swingx.JXDatePicker jDatePickerCreationFrom;
+    private org.jdesktop.swingx.JXDatePicker jDatePickerCreationTo;
+    private org.jdesktop.swingx.JXDatePicker jDatePickerLoginFrom;
+    private org.jdesktop.swingx.JXDatePicker jDatePickerLoginTo;
+    private javax.swing.JLabel jLabelBan;
+    private javax.swing.JLabel jLabelCreationFilter;
+    private javax.swing.JLabel jLabelCreationFrom;
+    private javax.swing.JLabel jLabelCreationTo;
+    private javax.swing.JLabel jLabelLock;
+    private javax.swing.JLabel jLabelLoginFilter;
+    private javax.swing.JLabel jLabelLoginFrom;
+    private javax.swing.JLabel jLabelLoginTo;
     private javax.swing.JLabel jLabelName;
+    private javax.swing.JLabel jLabelOnline;
     private javax.swing.JPanel jPanelControls;
-    private javax.swing.JRadioButton jRadioButtonLockBoth;
-    private javax.swing.JRadioButton jRadioButtonLocked;
-    private javax.swing.JRadioButton jRadioButtonUnlocked;
+    private javax.swing.JPanel jPanelCreation;
+    private javax.swing.JPanel jPanelLogin;
     private javax.swing.JScrollPane jScrollPaneTableAccounts;
     private javax.swing.JTextField jTFName;
     private javax.swing.JTable jTableAccounts;

@@ -56,6 +56,14 @@ public class Utils {
      * @return The updated query object with the corresponding filter.
      */
     public static Criteria applyDateFilter(Criteria query, String param, DateType filter, Date from, Date to) {
+        // We first exchange dates if they are invalid.   
+        if(from != null && to != null && from.after(to))
+        {
+            Date temp = from;
+            from = to;
+            to = temp;
+        }
+        
         switch (filter) {
             case BEFORE:
                 query.add(Restrictions.le(param, from));

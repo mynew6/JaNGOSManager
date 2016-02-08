@@ -19,11 +19,9 @@ import eu.jangos.manager.controller.filters.BooleanType;
 import eu.jangos.manager.controller.filters.DateType;
 import eu.jangos.manager.hibernate.HibernateUtil;
 import eu.jangos.manager.model.Account;
-import eu.jangos.manager.model.Bannedaccount;
 import eu.jangos.manager.utils.Utils;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Predicate;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
@@ -31,7 +29,6 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
-import org.hibernate.transform.Transformers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,8 +66,36 @@ public class AccountService {
             DateType createdFilter, Date createdFrom, Date createdTo,
             DateType loginFilter, Date loginFrom, Date loginTo,
             BooleanType locked, BooleanType banned, BooleanType online) {
+
+        boolean error = false;
+        String message = "You must enter the following parameters:\n";
+
+        // Checking name input.
+        if (name == null || name.isEmpty()) {
+            logger.error("The parameter name is null or empty");
+            message += "- A name\n";
+            error = true;
+        }
+
+        // Checking dates input.
+        if ((createdFilter != DateType.NONE && createdFrom == null)
+                || (createdFilter == DateType.BETWEEN && createdTo == null)
+                || (loginFilter != DateType.NONE && loginFrom == null)
+                || (loginFilter == DateType.BETWEEN && loginTo == null)) {
+            logger.error("A date filter has been requested while the date values are incorrect");
+            message += "- Valid dates when selecting a date filter\n";
+            error = true;
+        }
+
+        if(error)
+        {
+            throw new IllegalArgumentException(message);
+        }
+        
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Criteria query = session.createCriteria(Account.class, "acc");
+
+            query.add(Restrictions.like("name", name));
 
             // This ban check is generating 2 SQL queries while, in SQL, you could do it in one.
             // Limitations of the criteria API.
@@ -80,18 +105,18 @@ public class AccountService {
                     Criteria getBannedQuery = session.createCriteria(Account.class)
                             .setProjection(Projections.distinct(Projections.property("id")))
                             .createCriteria("bannedaccountsForFkBannedaccount", "ban", JoinType.LEFT_OUTER_JOIN)
-                            .add(Restrictions.eq("ban.active", true));                                        
-                    
+                            .add(Restrictions.eq("ban.active", true));
+
                     // Then we add these IDs to the query.
                     query = query.add(Restrictions.in("id", getBannedQuery.list()));
                     break;
-                case FALSE:   
+                case FALSE:
                     // First, we get the list of ID for the accounts that are not banned.
                     Criteria getNotBanQuery = session.createCriteria(Account.class)
                             .setProjection(Projections.distinct(Projections.property("id")))
                             .createCriteria("bannedaccountsForFkBannedaccount", "ban", JoinType.LEFT_OUTER_JOIN)
                             .add(Restrictions.or(Restrictions.eq("ban.active", false), Restrictions.isNull("ban.active")));
-                    
+
                     // Then we add these IDs to the query.
                     query = query.add(Restrictions.in("id", getNotBanQuery.list()));
                     break;
@@ -103,7 +128,7 @@ public class AccountService {
             query = Utils.applyBooleanFilter(query, "online", online);
 
             return query.list();
-        } catch (HibernateException he) {            
+        } catch (HibernateException he) {
             logger.error("There was an error connecting to the database.");
             return null;
         }
@@ -131,27 +156,27 @@ public class AccountService {
 
     /**
      * Returns the account corresponding to the given name. The name must
-     * contain only alphanumeric values.
+     * contain only alphanumeric values. 
+     * Prefer this method to the getAllAccounts if your only criteria is a specific name.
      *
      * @param name The name of the account to be found.
      * @return The account corresponding to the given name. Null if the account
      * is not found.
      */
-    public Account getAccount(String name) {
+    public Account getAccount(String name) {                
         if (name == null || name.isEmpty()) {
             logger.error("The account name is null or empty.");
-            return null;
+            throw new IllegalArgumentException("The account name is null or empty");
         }
 
         if (!name.matches("[a-zA-Z0-9]+")) {
             logger.error("The account name must contain only alphanumeric values.");
-            return null;
+            throw new IllegalArgumentException("The account name must contain only alphanumeric values");
         }
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Account account = (Account) session.createCriteria(Account.class)
-                    .add(Restrictions.like("name", name))
-                    .setFetchMode("realmAccounts", FetchMode.JOIN)
+                    .add(Restrictions.like("name", name))                    
                     .uniqueResult();
             return account;
         } catch (HibernateException he) {
