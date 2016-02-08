@@ -23,6 +23,7 @@ import eu.jangos.manager.model.Bannedaccount;
 import eu.jangos.manager.utils.Utils;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Predicate;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
@@ -69,49 +70,40 @@ public class AccountService {
             DateType loginFilter, Date loginFrom, Date loginTo,
             BooleanType locked, BooleanType banned, BooleanType online) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            Criteria query = session.createCriteria(Account.class);                                    
+            Criteria query = session.createCriteria(Account.class, "acc");
 
-            switch(banned)
-            {
-                case TRUE:                
-                    Criteria banQuery = session.createCriteria(Bannedaccount.class);
+            // This ban check is generating 2 SQL queries while, in SQL, you could do it in one.
+            // Limitations of the criteria API.
+            switch (banned) {
+                case TRUE:
+                    // First, we get the list of IDs for the accounts that are banned.
+                    Criteria getBannedQuery = session.createCriteria(Account.class)
+                            .setProjection(Projections.distinct(Projections.property("id")))
+                            .createCriteria("bannedaccountsForFkBannedaccount", "ban", JoinType.LEFT_OUTER_JOIN)
+                            .add(Restrictions.eq("ban.active", true));                                        
                     
-                    banQuery.setFetchMode("accountByFkBannedaccount", FetchMode.JOIN)
-                            .add(Restrictions.eq("active", true))
-                            //.createCriteria("accountByFkBannedaccount")
-                            .setProjection(Projections.distinct(Projections.property("accountByFkBannedaccount")))
-                            .setResultTransformer(Transformers.aliasToBean(Account.class));                            
-                    
-                    List<Account> listAccounts = banQuery.list();
-                    
-                    for(Account account : listAccounts)
-                    {
-                        System.out.println(account.getId());
-                    }
-                    
-                    //query.createAlias("bannedaccount", "ban", JoinType.LEFT_OUTER_JOIN);
-                    //query.createAlias("acc.bannedaccount", "ba");
-                    
-                    
-                    
-                    query.setProjection(Projections.distinct(Projections.property("id")))
-                    .setResultTransformer(Transformers.aliasToBean(Account.class));                    
-                    
-                    //query.setFetchMode("bannedaccountsForFkBannedaccount", FetchMode.JOIN);                                        
+                    // Then we add these IDs to the query.
+                    query = query.add(Restrictions.in("id", getBannedQuery.list()));
                     break;
-                case FALSE:
+                case FALSE:   
+                    // First, we get the list of ID for the accounts that are not banned.
+                    Criteria getNotBanQuery = session.createCriteria(Account.class)
+                            .setProjection(Projections.distinct(Projections.property("id")))
+                            .createCriteria("bannedaccountsForFkBannedaccount", "ban", JoinType.LEFT_OUTER_JOIN)
+                            .add(Restrictions.or(Restrictions.eq("ban.active", false), Restrictions.isNull("ban.active")));
+                    
+                    // Then we add these IDs to the query.
+                    query = query.add(Restrictions.in("id", getNotBanQuery.list()));
                     break;
             }
-            
+
             query = Utils.applyDateFilter(query, "creation", createdFilter, createdFrom, createdTo);
             query = Utils.applyDateFilter(query, "lastlogin", loginFilter, loginFrom, loginTo);
-            query = Utils.applyBooleanFilter(query, "active", banned);
             query = Utils.applyBooleanFilter(query, "locked", locked);
-            query = Utils.applyBooleanFilter(query, "online", online);           
+            query = Utils.applyBooleanFilter(query, "online", online);
 
             return query.list();
-        } catch (HibernateException he) {
-            he.printStackTrace();
+        } catch (HibernateException he) {            
             logger.error("There was an error connecting to the database.");
             return null;
         }

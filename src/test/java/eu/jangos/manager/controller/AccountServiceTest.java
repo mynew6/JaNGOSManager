@@ -69,14 +69,14 @@ public class AccountServiceTest {
         Date loginFrom = null;
         Date loginTo = null;
         BooleanType locked = BooleanType.BOTH;
-        BooleanType banned = BooleanType.TRUE;
-        BooleanType online = BooleanType.BOTH;
+        BooleanType banned = BooleanType.FALSE;
+        BooleanType online = BooleanType.TRUE;
         AccountService instance = new AccountService();        
         List<Account> result = instance.getAllAccounts(name, createdFilter, createdFrom, createdTo, loginFilter, loginFrom, loginTo, locked, banned, online);
         
         for(Account account : result)
-        {
-          //  System.out.println(account.getId());
+        {            
+            System.out.println(account.getName());
         }
     }
 
