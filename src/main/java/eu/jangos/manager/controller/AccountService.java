@@ -42,7 +42,8 @@ import org.slf4j.LoggerFactory;
 public class AccountService {
 
     private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
-
+    private final BannedAccountService bas = new BannedAccountService();
+    
     /**
      * Provides access to the list of all accounts matching the parameters.
      *
@@ -95,6 +96,9 @@ public class AccountService {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Criteria query = session.createCriteria(Account.class, "acc");
 
+            query.setFetchMode("locale", FetchMode.JOIN);
+            query.setFetchMode("realm", FetchMode.JOIN);
+            
             query.add(Restrictions.like("name", name));
 
             // This ban check is generating 2 SQL queries while, in SQL, you could do it in one.
@@ -108,7 +112,7 @@ public class AccountService {
                             .add(Restrictions.eq("ban.active", true));
 
                     // Then we add these IDs to the query.
-                    query = query.add(Restrictions.in("id", getBannedQuery.list()));
+                    query.add(Restrictions.in("id", getBannedQuery.list()));
                     break;
                 case FALSE:
                     // First, we get the list of ID for the accounts that are not banned.
@@ -118,7 +122,7 @@ public class AccountService {
                             .add(Restrictions.or(Restrictions.eq("ban.active", false), Restrictions.isNull("ban.active")));
 
                     // Then we add these IDs to the query.
-                    query = query.add(Restrictions.in("id", getNotBanQuery.list()));
+                    query.add(Restrictions.in("id", getNotBanQuery.list()));
                     break;
             }
 
@@ -134,6 +138,21 @@ public class AccountService {
         }
     }
 
+    /**
+     * Returns whether an account is banned.
+     * @param account The account to be checked in database.
+     * @return true if the account is banned, false otherwise.
+     */
+    public boolean isAccountBanned(Account account)
+    {
+        if (account == null) {
+            logger.error("Account trying to login is null.");
+            return true;
+        }       
+
+        return (this.bas.isAccountBanned(account));
+    }
+    
     /**
      * Returns the account corresponding to the given id.
      *

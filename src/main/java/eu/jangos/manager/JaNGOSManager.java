@@ -73,16 +73,24 @@ public class JaNGOSManager extends JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("JaNGOS Manager Application");
         setIconImage(getIconImage());
+        setMinimumSize(new java.awt.Dimension(720, 480));
+
+        jDesktopMainPane.setMinimumSize(new java.awt.Dimension(1157, 725));
+        jDesktopMainPane.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                jDesktopMainPaneComponentResized(evt);
+            }
+        });
 
         javax.swing.GroupLayout jDesktopMainPaneLayout = new javax.swing.GroupLayout(jDesktopMainPane);
         jDesktopMainPane.setLayout(jDesktopMainPaneLayout);
         jDesktopMainPaneLayout.setHorizontalGroup(
             jDesktopMainPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 915, Short.MAX_VALUE)
+            .addGap(0, 1157, Short.MAX_VALUE)
         );
         jDesktopMainPaneLayout.setVerticalGroup(
             jDesktopMainPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 426, Short.MAX_VALUE)
+            .addGap(0, 725, Short.MAX_VALUE)
         );
 
         getContentPane().add(jDesktopMainPane, java.awt.BorderLayout.CENTER);
@@ -169,6 +177,10 @@ public class JaNGOSManager extends JFrame {
             java.util.logging.Logger.getLogger(JaNGOSManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jMenuManageAccountsMouseReleased
+
+    private void jDesktopMainPaneComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_jDesktopMainPaneComponentResized
+        //System.out.println("my size is: "+this.getSize());
+    }//GEN-LAST:event_jDesktopMainPaneComponentResized
 
     /**
      * @param args the command line arguments

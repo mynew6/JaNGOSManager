@@ -20,12 +20,20 @@ import eu.jangos.manager.controller.filters.BooleanType;
 import eu.jangos.manager.controller.filters.DateType;
 import eu.jangos.manager.model.Account;
 import eu.jangos.manager.utils.Utils;
+import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
+import java.awt.event.KeyEvent;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import javax.swing.JComboBox;
+import javafx.scene.input.KeyCode;
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +51,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
     private static final String ICON_IMAGE = "/images/account.png";
 
     private final AccountService as;
+    private final SimpleDateFormat sdf;
     private BooleanType locked;
     private BooleanType banned;
     private BooleanType online;
@@ -56,18 +65,23 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         initComponents();
         // Sort this table by name per default.        
         this.setFrameIcon(Utils.createImageIcon(ICON_IMAGE, getClass()));
-
         this.jTableAccounts.getRowSorter().toggleSortOrder(0);
 
         this.jTableAccountsModel = (DefaultTableModel) this.jTableAccounts.getModel();
+        // Removing column ID from the display.
+        this.jTableAccounts.removeColumn(this.jTableAccounts.getColumnModel().getColumn(0));
+        this.jTableAccounts.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         this.as = new AccountService();
+
+        createKeybindings(this.jTableAccounts);
 
         this.locked = BooleanType.BOTH;
         this.banned = BooleanType.BOTH;
         this.online = BooleanType.BOTH;
         this.login = DateType.NONE;
         this.creation = DateType.NONE;
-        
+
+        this.sdf = new SimpleDateFormat("dd/MM/yyyy");
         Date now = new Date();
         this.jDatePickerCreationFrom.setLocale(Locale.UK);
         this.jDatePickerCreationTo.setLocale(Locale.UK);
@@ -92,17 +106,19 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         buttonGroupLocked = new javax.swing.ButtonGroup();
         jScrollPaneTableAccounts = new javax.swing.JScrollPane();
         jTableAccounts = new javax.swing.JTable();
-        jPanelControls = new javax.swing.JPanel();
+        jPanelFilters = new javax.swing.JPanel();
+        jPanelGeneric = new javax.swing.JPanel();
         jLabelName = new javax.swing.JLabel();
         jTFName = new javax.swing.JTextField();
         jCBMatch = new javax.swing.JCheckBox();
-        jButtonSearch = new javax.swing.JButton();
         jLabelLock = new javax.swing.JLabel();
         jCBLock = new javax.swing.JComboBox();
         jLabelBan = new javax.swing.JLabel();
         jCBBan = new javax.swing.JComboBox();
         jLabelOnline = new javax.swing.JLabel();
         jCBOnline = new javax.swing.JComboBox();
+        jButtonReset = new javax.swing.JButton();
+        jButtonSearch = new javax.swing.JButton();
         jPanelCreation = new javax.swing.JPanel();
         jLabelCreationFilter = new javax.swing.JLabel();
         jCBCreationFilter = new javax.swing.JComboBox();
@@ -117,6 +133,14 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         jDatePickerLoginFrom = new org.jdesktop.swingx.JXDatePicker();
         jLabelLoginTo = new javax.swing.JLabel();
         jDatePickerLoginTo = new org.jdesktop.swingx.JXDatePicker();
+        jPanelControls = new javax.swing.JPanel();
+        jButtonUnlock = new javax.swing.JButton();
+        jButtonLock = new javax.swing.JButton();
+        jButtonUnban = new javax.swing.JButton();
+        jButtonBan = new javax.swing.JButton();
+        jButtonCreate = new javax.swing.JButton();
+        jButtonDelete = new javax.swing.JButton();
+        jButtonEdit = new javax.swing.JButton();
 
         setClosable(true);
         setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
@@ -124,6 +148,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         setMaximizable(true);
         setResizable(true);
         setTitle("Account Management");
+        setMinimumSize(new java.awt.Dimension(720, 480));
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         jTableAccounts.setAutoCreateRowSorter(true);
@@ -132,14 +157,14 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
 
             },
             new String [] {
-                "Name", "Email", "Creation", "Locked"
+                "ID", "Name", "Email", "Banned", "Attempt", "Locked", "Locale", "Online", "Realm", "Last login", "Last IP", "Creation"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.Boolean.class, java.lang.Integer.class, java.lang.Boolean.class, java.lang.String.class, java.lang.Boolean.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false
+                false, false, false, false, false, false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -150,11 +175,16 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
                 return canEdit [columnIndex];
             }
         });
+        jTableAccounts.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jTableAccountsMouseReleased(evt);
+            }
+        });
         jScrollPaneTableAccounts.setViewportView(jTableAccounts);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipadx = 554;
         gridBagConstraints.ipady = 358;
@@ -163,47 +193,47 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints.weighty = 1.0;
         getContentPane().add(jScrollPaneTableAccounts, gridBagConstraints);
 
-        jPanelControls.setBorder(javax.swing.BorderFactory.createTitledBorder("Controls"));
-        jPanelControls.setLayout(new java.awt.GridBagLayout());
+        jPanelFilters.setBorder(javax.swing.BorderFactory.createTitledBorder("Filters"));
+        jPanelFilters.setLayout(new java.awt.GridBagLayout());
+
+        jPanelGeneric.setMaximumSize(new java.awt.Dimension(350, 140));
+        jPanelGeneric.setMinimumSize(new java.awt.Dimension(350, 140));
+        jPanelGeneric.setName(""); // NOI18N
+        jPanelGeneric.setPreferredSize(new java.awt.Dimension(350, 140));
+        jPanelGeneric.setLayout(new java.awt.GridBagLayout());
 
         jLabelName.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         jLabelName.setText("Name:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        jPanelControls.add(jLabelName, gridBagConstraints);
+        jPanelGeneric.add(jLabelName, gridBagConstraints);
 
-        jTFName.setMinimumSize(new java.awt.Dimension(89, 20));
-        jTFName.setPreferredSize(new java.awt.Dimension(150, 25));
+        jTFName.setMaximumSize(new java.awt.Dimension(110, 25));
+        jTFName.setMinimumSize(new java.awt.Dimension(110, 25));
+        jTFName.setPreferredSize(new java.awt.Dimension(110, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
-        jPanelControls.add(jTFName, gridBagConstraints);
+        jPanelGeneric.add(jTFName, gridBagConstraints);
 
         jCBMatch.setText("Match");
-        jCBMatch.setToolTipText("Retrieve only account matching the name");
-        jPanelControls.add(jCBMatch, new java.awt.GridBagConstraints());
-
-        jButtonSearch.setText("Search");
-        jButtonSearch.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                jButtonSearchMouseReleased(evt);
-            }
-        });
+        jCBMatch.setToolTipText("Retrieve only account exactly matching the name");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 10;
-        jPanelControls.add(jButtonSearch, gridBagConstraints);
+        gridBagConstraints.gridy = 0;
+        jPanelGeneric.add(jCBMatch, gridBagConstraints);
 
         jLabelLock.setText("Lock:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        jPanelControls.add(jLabelLock, gridBagConstraints);
+        jPanelGeneric.add(jLabelLock, gridBagConstraints);
 
         jCBLock.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "BOTH", "LOCKED", "UNLOCKED" }));
-        jCBLock.setMinimumSize(new java.awt.Dimension(89, 20));
-        jCBLock.setPreferredSize(new java.awt.Dimension(89, 20));
+        jCBLock.setMaximumSize(new java.awt.Dimension(110, 25));
+        jCBLock.setMinimumSize(new java.awt.Dimension(110, 25));
+        jCBLock.setPreferredSize(new java.awt.Dimension(110, 25));
         jCBLock.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 jCBLockItemStateChanged(evt);
@@ -212,15 +242,18 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
-        jPanelControls.add(jCBLock, gridBagConstraints);
+        jPanelGeneric.add(jCBLock, gridBagConstraints);
 
         jLabelBan.setText("Ban:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
-        jPanelControls.add(jLabelBan, gridBagConstraints);
+        jPanelGeneric.add(jLabelBan, gridBagConstraints);
 
         jCBBan.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "BOTH", "BANNED", "NOT BANNED" }));
+        jCBBan.setMaximumSize(new java.awt.Dimension(110, 25));
+        jCBBan.setMinimumSize(new java.awt.Dimension(110, 25));
+        jCBBan.setPreferredSize(new java.awt.Dimension(110, 25));
         jCBBan.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 jCBBanItemStateChanged(evt);
@@ -229,17 +262,18 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
-        jPanelControls.add(jCBBan, gridBagConstraints);
+        jPanelGeneric.add(jCBBan, gridBagConstraints);
 
         jLabelOnline.setText("Online:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
-        jPanelControls.add(jLabelOnline, gridBagConstraints);
+        jPanelGeneric.add(jLabelOnline, gridBagConstraints);
 
-        jCBOnline.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "BOTH", "Online", "Offline" }));
-        jCBOnline.setMinimumSize(new java.awt.Dimension(89, 20));
-        jCBOnline.setPreferredSize(new java.awt.Dimension(89, 20));
+        jCBOnline.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "BOTH", "ON", "OFF" }));
+        jCBOnline.setMaximumSize(new java.awt.Dimension(110, 25));
+        jCBOnline.setMinimumSize(new java.awt.Dimension(110, 25));
+        jCBOnline.setPreferredSize(new java.awt.Dimension(110, 25));
         jCBOnline.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 jCBOnlineItemStateChanged(evt);
@@ -248,20 +282,51 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 3;
-        jPanelControls.add(jCBOnline, gridBagConstraints);
+        jPanelGeneric.add(jCBOnline, gridBagConstraints);
+
+        jButtonReset.setText("Reset");
+        jButtonReset.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jButtonResetMouseReleased(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 5;
+        jPanelGeneric.add(jButtonReset, gridBagConstraints);
+
+        jButtonSearch.setText("Search");
+        jButtonSearch.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jButtonSearchMouseReleased(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 5;
+        jPanelGeneric.add(jButtonSearch, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        jPanelFilters.add(jPanelGeneric, gridBagConstraints);
 
         jPanelCreation.setBorder(javax.swing.BorderFactory.createTitledBorder("Creation"));
+        jPanelCreation.setMaximumSize(new java.awt.Dimension(380, 140));
+        jPanelCreation.setMinimumSize(new java.awt.Dimension(380, 140));
+        jPanelCreation.setPreferredSize(new java.awt.Dimension(380, 140));
         jPanelCreation.setLayout(new java.awt.GridBagLayout());
 
         jLabelCreationFilter.setText("Filter:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 0;
         jPanelCreation.add(jLabelCreationFilter, gridBagConstraints);
 
         jCBCreationFilter.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "NONE", "BEFORE", "AFTER", "BETWEEN" }));
-        jCBCreationFilter.setMinimumSize(new java.awt.Dimension(89, 20));
-        jCBCreationFilter.setPreferredSize(new java.awt.Dimension(89, 20));
+        jCBCreationFilter.setMinimumSize(new java.awt.Dimension(110, 20));
+        jCBCreationFilter.setPreferredSize(new java.awt.Dimension(110, 20));
         jCBCreationFilter.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 jCBCreationFilterItemStateChanged(evt);
@@ -269,43 +334,44 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 0;
         jPanelCreation.add(jCBCreationFilter, gridBagConstraints);
 
         jLabelCreationFrom.setText("From:");
         jLabelCreationFrom.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 1;
         jPanelCreation.add(jLabelCreationFrom, gridBagConstraints);
 
         jDatePickerCreationFrom.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 1;
         jPanelCreation.add(jDatePickerCreationFrom, gridBagConstraints);
 
         jLabelCreationTo.setText("To:");
         jLabelCreationTo.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 1;
         jPanelCreation.add(jLabelCreationTo, gridBagConstraints);
 
         jDatePickerCreationTo.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 1;
         jPanelCreation.add(jDatePickerCreationTo, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        jPanelControls.add(jPanelCreation, gridBagConstraints);
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        jPanelFilters.add(jPanelCreation, gridBagConstraints);
 
         jPanelLogin.setBorder(javax.swing.BorderFactory.createTitledBorder("Login"));
+        jPanelLogin.setMaximumSize(new java.awt.Dimension(380, 140));
+        jPanelLogin.setMinimumSize(new java.awt.Dimension(380, 140));
+        jPanelLogin.setPreferredSize(new java.awt.Dimension(380, 140));
         jPanelLogin.setLayout(new java.awt.GridBagLayout());
 
         jLabelLoginFilter.setText("Filter:");
@@ -315,8 +381,8 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         jPanelLogin.add(jLabelLoginFilter, gridBagConstraints);
 
         jCBLoginFilter.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "NONE", "BEFORE", "AFTER", "BETWEEN" }));
-        jCBLoginFilter.setMinimumSize(new java.awt.Dimension(89, 20));
-        jCBLoginFilter.setPreferredSize(new java.awt.Dimension(89, 20));
+        jCBLoginFilter.setMinimumSize(new java.awt.Dimension(110, 20));
+        jCBLoginFilter.setPreferredSize(new java.awt.Dimension(110, 20));
         jCBLoginFilter.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 jCBLoginFilterItemStateChanged(evt);
@@ -354,24 +420,72 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         jPanelLogin.add(jDatePickerLoginTo, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        jPanelControls.add(jPanelLogin, gridBagConstraints);
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        jPanelFilters.add(jPanelLogin, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        getContentPane().add(jPanelFilters, gridBagConstraints);
+
+        jPanelControls.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Controls", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
+        jPanelControls.setLayout(new java.awt.GridBagLayout());
+
+        jButtonUnlock.setText("Unlock");
+        jButtonUnlock.setToolTipText("Unlock all the selected accounts");
+        jPanelControls.add(jButtonUnlock, new java.awt.GridBagConstraints());
+
+        jButtonLock.setText("Lock");
+        jButtonLock.setToolTipText("Lock all the selected accounts");
+        jPanelControls.add(jButtonLock, new java.awt.GridBagConstraints());
+
+        jButtonUnban.setText("Unban");
+        jButtonUnban.setToolTipText("Unban all the selected accounts");
+        jPanelControls.add(jButtonUnban, new java.awt.GridBagConstraints());
+
+        jButtonBan.setText("Ban");
+        jButtonBan.setToolTipText("Ban all the selected accounts");
+        jPanelControls.add(jButtonBan, new java.awt.GridBagConstraints());
+
+        jButtonCreate.setText("Create");
+        jButtonCreate.setToolTipText("Open the window to create a new account");
+        jPanelControls.add(jButtonCreate, new java.awt.GridBagConstraints());
+
+        jButtonDelete.setText("Delete");
+        jButtonDelete.setToolTipText("Delete all the selected account");
+        jPanelControls.add(jButtonDelete, new java.awt.GridBagConstraints());
+
+        jButtonEdit.setText("Edit");
+        jButtonEdit.setToolTipText("Edit the selected account");
+        jPanelControls.add(jButtonEdit, new java.awt.GridBagConstraints());
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(jPanelControls, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void updateTable(Account account) {
-        this.jTableAccountsModel.addRow(new Object[]{account.getName(), account.getEmail(), account.getCreation(),
-            account.isLocked()});
+        this.jTableAccountsModel.addRow(new Object[]{
+            account.getId(),
+            account.getName(),
+            account.getEmail(),
+            this.as.isAccountBanned(account),
+            account.getFailedattempt(),
+            account.isLocked(),
+            account.getLocale().getLocale(),
+            account.isOnline(),
+            account.getRealm().getName(),
+            this.sdf.format(account.getLastlogin()),
+            account.getLastIp(),
+            this.sdf.format(account.getCreation())});
     }
 
     private void updateTable(List<Account> listAccounts) {
@@ -516,6 +630,65 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_jCBLoginFilterItemStateChanged
 
+    private void jTableAccountsMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableAccountsMouseReleased
+        if (evt.getClickCount() == 2) {
+            editAccount();
+        }
+    }//GEN-LAST:event_jTableAccountsMouseReleased
+
+    private void jButtonResetMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonResetMouseReleased
+        Date now = new Date();
+
+        this.jTFName.setText("");
+
+        this.jDatePickerCreationFrom.setDate(now);
+        this.jDatePickerCreationTo.setDate(now);
+        this.jDatePickerLoginFrom.setDate(now);
+        this.jDatePickerLoginTo.setDate(now);
+
+        this.jCBMatch.setSelected(false);
+
+        this.jCBLock.setSelectedIndex(0);
+        this.jCBBan.setSelectedIndex(0);
+        this.jCBOnline.setSelectedIndex(0);
+
+        this.jCBCreationFilter.setSelectedIndex(0);
+        this.jCBLoginFilter.setSelectedIndex(0);
+
+        this.login = DateType.NONE;
+        this.jDatePickerLoginFrom.setEnabled(false);
+        this.jLabelLoginFrom.setEnabled(false);
+        this.jDatePickerLoginTo.setEnabled(false);
+        this.jLabelLoginTo.setEnabled(false);
+
+        this.creation = DateType.NONE;
+        this.jDatePickerCreationFrom.setEnabled(false);
+        this.jLabelCreationFrom.setEnabled(false);
+        this.jDatePickerCreationTo.setEnabled(false);
+        this.jLabelCreationTo.setEnabled(false);
+    }//GEN-LAST:event_jButtonResetMouseReleased
+
+    private void editAccount() {
+        int[] rows = this.jTableAccounts.getSelectedRows();
+        if (rows.length == 0) {
+            return;
+        }
+        for (int i = 0; i < rows.length; i++) {
+            int id = (int) this.jTableAccountsModel.getValueAt(rows[i], 0);
+            showError("I got it, thanks", "The ID of this account is :" + id);
+        }
+    }
+
+    private void createKeybindings(JTable table) {
+        table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Enter");
+        table.getActionMap().put("Enter", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                editAccount();
+            }
+        });
+    }
+
     private void showWarning(String title, String message) {
         JOptionPane.showMessageDialog(this, message, title, JOptionPane.WARNING_MESSAGE);
     }
@@ -526,7 +699,15 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroupLocked;
+    private javax.swing.JButton jButtonBan;
+    private javax.swing.JButton jButtonCreate;
+    private javax.swing.JButton jButtonDelete;
+    private javax.swing.JButton jButtonEdit;
+    private javax.swing.JButton jButtonLock;
+    private javax.swing.JButton jButtonReset;
     private javax.swing.JButton jButtonSearch;
+    private javax.swing.JButton jButtonUnban;
+    private javax.swing.JButton jButtonUnlock;
     private javax.swing.JComboBox jCBBan;
     private javax.swing.JComboBox jCBCreationFilter;
     private javax.swing.JComboBox jCBLock;
@@ -549,6 +730,8 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabelOnline;
     private javax.swing.JPanel jPanelControls;
     private javax.swing.JPanel jPanelCreation;
+    private javax.swing.JPanel jPanelFilters;
+    private javax.swing.JPanel jPanelGeneric;
     private javax.swing.JPanel jPanelLogin;
     private javax.swing.JScrollPane jScrollPaneTableAccounts;
     private javax.swing.JTextField jTFName;
