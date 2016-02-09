@@ -8,6 +8,7 @@
     <property name="hibernate.connection.username">root</property>
     <property name="hibernate.connection.password"/>
     <property name="hibernate.query.factory_class">org.hibernate.hql.internal.classic.ClassicQueryTranslatorFactory</property>
+    <property name="hibernate.show_sql">false</property>
     <mapping resource="eu/jangos/manager/model/Parameter1.hbm.xml"/>
     <mapping resource="eu/jangos/manager/model/Account.hbm.xml"/>
     <mapping resource="eu/jangos/manager/model/Realmtype.hbm.xml"/>
