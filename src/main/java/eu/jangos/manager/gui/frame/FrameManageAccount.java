@@ -18,6 +18,7 @@ package eu.jangos.manager.gui.frame;
 import eu.jangos.manager.controller.AccountService;
 import eu.jangos.manager.controller.filters.BooleanType;
 import eu.jangos.manager.controller.filters.DateType;
+import eu.jangos.manager.gui.dialog.DialogBan;
 import eu.jangos.manager.model.Account;
 import eu.jangos.manager.utils.Utils;
 import java.awt.event.ActionEvent;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
@@ -48,9 +50,12 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
 
     private static final Logger logger = LoggerFactory.getLogger(FrameManageAccount.class);
     private static final String ICON_IMAGE = "/images/account.png";
-
+    private static final int DEFAULT_BAN_DURATION = 60;
+    
     private final AccountService as;
     private final SimpleDateFormat sdf;
+    private final DialogBan dialogBan;
+    private final JFrame parent;    
     private BooleanType locked;
     private BooleanType banned;
     private BooleanType online;
@@ -59,9 +64,18 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
 
     /**
      * Creates new form FrameManageAccount
+     * @param parent The parent JFrame of this internal frame.
      */
-    public FrameManageAccount() {
+    public FrameManageAccount(JFrame parent) {       
         initComponents();
+                
+        this.parent = parent;
+        this.dialogBan = new DialogBan(this.parent, true);
+        
+        // We set a default duration
+        this.dialogBan.setDuration(DEFAULT_BAN_DURATION);
+        this.dialogBan.setCode(JOptionPane.CANCEL_OPTION);
+        
         // Sort this table by name per default.        
         this.setFrameIcon(Utils.createImageIcon(ICON_IMAGE, getClass()));
         this.jTableAccounts.getRowSorter().toggleSortOrder(0);
@@ -89,7 +103,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         this.jDatePickerCreationFrom.setDate(now);
         this.jDatePickerCreationTo.setDate(now);
         this.jDatePickerLoginFrom.setDate(now);
-        this.jDatePickerLoginTo.setDate(now);
+        this.jDatePickerLoginTo.setDate(now);        
     }
 
     /**
@@ -116,6 +130,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         jCBBan = new javax.swing.JComboBox();
         jLabelOnline = new javax.swing.JLabel();
         jCBOnline = new javax.swing.JComboBox();
+        jPanel1 = new javax.swing.JPanel();
         jButtonReset = new javax.swing.JButton();
         jButtonSearch = new javax.swing.JButton();
         jPanelCreation = new javax.swing.JPanel();
@@ -289,10 +304,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
                 jButtonResetMouseReleased(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 5;
-        jPanelGeneric.add(jButtonReset, gridBagConstraints);
+        jPanel1.add(jButtonReset);
 
         jButtonSearch.setText("Search");
         jButtonSearch.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -300,10 +312,13 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
                 jButtonSearchMouseReleased(evt);
             }
         });
+        jPanel1.add(jButtonSearch);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 5;
-        jPanelGeneric.add(jButtonSearch, gridBagConstraints);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        jPanelGeneric.add(jPanel1, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -435,18 +450,38 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
 
         jButtonUnlock.setText("Unlock");
         jButtonUnlock.setToolTipText("Unlock all the selected accounts");
+        jButtonUnlock.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonUnlockActionPerformed(evt);
+            }
+        });
         jPanelControls.add(jButtonUnlock, new java.awt.GridBagConstraints());
 
         jButtonLock.setText("Lock");
         jButtonLock.setToolTipText("Lock all the selected accounts");
+        jButtonLock.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonLockActionPerformed(evt);
+            }
+        });
         jPanelControls.add(jButtonLock, new java.awt.GridBagConstraints());
 
         jButtonUnban.setText("Unban");
         jButtonUnban.setToolTipText("Unban all the selected accounts");
+        jButtonUnban.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonUnbanActionPerformed(evt);
+            }
+        });
         jPanelControls.add(jButtonUnban, new java.awt.GridBagConstraints());
 
         jButtonBan.setText("Ban");
         jButtonBan.setToolTipText("Ban all the selected accounts");
+        jButtonBan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonBanActionPerformed(evt);
+            }
+        });
         jPanelControls.add(jButtonBan, new java.awt.GridBagConstraints());
 
         jButtonCreate.setText("Create");
@@ -455,6 +490,11 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
 
         jButtonDelete.setText("Delete");
         jButtonDelete.setToolTipText("Delete all the selected account");
+        jButtonDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDeleteActionPerformed(evt);
+            }
+        });
         jPanelControls.add(jButtonDelete, new java.awt.GridBagConstraints());
 
         jButtonEdit.setText("Edit");
@@ -667,6 +707,108 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         this.jLabelCreationTo.setEnabled(false);
     }//GEN-LAST:event_jButtonResetMouseReleased
 
+    private void jButtonUnlockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonUnlockActionPerformed
+        int[] rows = this.jTableAccounts.getSelectedRows();
+        if(rows.length == 0) {
+            return ;
+        }
+        
+        for (int i = 0; i < rows.length; i++)
+        {
+            try{
+                this.as.unlockAccount(rows[i]);
+            } catch (IllegalArgumentException iae) {
+                showError("Oups, an error occured", iae.getMessage());
+            }
+        }        
+        
+        jButtonSearchMouseReleased(null);
+    }//GEN-LAST:event_jButtonUnlockActionPerformed
+
+    private void jButtonLockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLockActionPerformed
+        int[] rows = this.jTableAccounts.getSelectedRows();
+        if(rows.length == 0) {
+            return ;
+        }
+        
+        for (int i = 0; i < rows.length; i++)
+        {
+            try{
+                this.as.lockAccount(rows[i]);
+            } catch (IllegalArgumentException iae) {
+                showError("Oups, an error occured", iae.getMessage());
+            }
+        }
+        
+        jButtonSearchMouseReleased(null);
+    }//GEN-LAST:event_jButtonLockActionPerformed
+
+    private void jButtonUnbanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonUnbanActionPerformed
+        int[] rows = this.jTableAccounts.getSelectedRows();
+        if(rows.length == 0) {
+            return ;
+        }
+                
+        for (int i = 0; i < rows.length; i++)
+        {
+            try{                
+                this.as.unbanAccount(rows[i]);
+            } catch (IllegalArgumentException iae) {
+                showError("Oups, an error occured", iae.getMessage());
+            }
+        }
+        
+        jButtonSearchMouseReleased(null);
+    }//GEN-LAST:event_jButtonUnbanActionPerformed
+
+    private void jButtonBanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBanActionPerformed
+        int[] rows = this.jTableAccounts.getSelectedRows();
+        if(rows.length == 0) {
+            return ;
+        }
+        
+        boolean refresh = false;
+        // FIXME -- Should be done by a logged in account.
+        for (int i = 0; i < rows.length; i++)
+        {
+            try{
+                askForBanReason();
+                if(dialogBan.getCode() == JOptionPane.OK_OPTION)
+                {                    
+                    this.as.banAccount(rows[i], 1, dialogBan.getReason(), dialogBan.getDuration());                    
+                    refresh = true;
+                }
+                dialogBan.setDuration(DEFAULT_BAN_DURATION);
+                dialogBan.setReason("");
+            } catch (IllegalArgumentException iae) {
+                showError("Oups, an error occured", iae.getMessage());
+            }
+        }
+        
+        if(refresh)
+        {
+            jButtonSearchMouseReleased(null);
+        }
+    }//GEN-LAST:event_jButtonBanActionPerformed
+
+    private void jButtonDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteActionPerformed
+        int[] rows = this.jTableAccounts.getSelectedRows();
+        if(rows.length == 0) {
+            return ;
+        }                
+        
+        for (int i = 0; i < rows.length; i++)
+        {
+            try{                                
+                this.as.delete(rows[i]);
+            } catch (IllegalArgumentException iae) {
+                showError("Oups, an error occured", iae.getMessage());
+            }
+        }
+        
+        jButtonSearchMouseReleased(null);
+    }//GEN-LAST:event_jButtonDeleteActionPerformed
+
     private void editAccount() {
         int[] rows = this.jTableAccounts.getSelectedRows();
         if (rows.length == 0) {
@@ -676,6 +818,8 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
             int id = (int) this.jTableAccountsModel.getValueAt(rows[i], 0);
             showError("I got it, thanks", "The ID of this account is :" + id);
         }
+        
+        jButtonSearchMouseReleased(null);
     }
 
     private void createKeybindings(JTable table) {
@@ -688,7 +832,12 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         });
     }
 
-    private void showWarning(String title, String message) {
+    private void askForBanReason()
+    {
+        this.dialogBan.setVisible(true);        
+    }
+    
+    private void showWarning(String title, String message) {        
         JOptionPane.showMessageDialog(this, message, title, JOptionPane.WARNING_MESSAGE);
     }
 
@@ -727,6 +876,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabelLoginTo;
     private javax.swing.JLabel jLabelName;
     private javax.swing.JLabel jLabelOnline;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanelControls;
     private javax.swing.JPanel jPanelCreation;
     private javax.swing.JPanel jPanelFilters;

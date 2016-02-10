@@ -18,6 +18,7 @@ package eu.jangos.manager.utils;
 import eu.jangos.manager.controller.filters.BooleanType;
 import eu.jangos.manager.controller.filters.DateType;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.Date;
 import javax.swing.ImageIcon;
 import org.hibernate.Criteria;
@@ -48,6 +49,7 @@ public class Utils {
 
     /**
      * Generic method to apply a date filter on an Hibernate query.
+     *
      * @param query The query object in its actual state.
      * @param param The name of the parameter in Hibernate configuration.
      * @param filter The filter type for the date.
@@ -57,13 +59,12 @@ public class Utils {
      */
     public static Criteria applyDateFilter(Criteria query, String param, DateType filter, Date from, Date to) {
         // We first exchange dates if they are invalid.   
-        if(from != null && to != null && from.after(to))
-        {
+        if (from != null && to != null && from.after(to)) {
             Date temp = from;
             from = to;
             to = temp;
         }
-        
+
         switch (filter) {
             case BEFORE:
                 query.add(Restrictions.le(param, from));
@@ -77,12 +78,19 @@ public class Utils {
                         .add(Restrictions.lt(param, to));
                 break;
         }
-        
+
         return query;
-    }
-    
+    }    
+
+    /**
+     * Add a boolean filter on the query passed in parameters.
+     * @param query The Criteria object to be updated.
+     * @param param The boolean parameter in database.
+     * @param filter The BooleanType filter to be applied.
+     * @return The updated Criteria object for chaining.
+     */
     public static Criteria applyBooleanFilter(Criteria query, String param, BooleanType filter) {
-        switch(filter) {
+        switch (filter) {
             case TRUE:
                 query.add(Restrictions.eq(param, true));
                 break;
@@ -90,10 +98,23 @@ public class Utils {
                 query.add(Restrictions.eq(param, false));
                 break;
         }
-        
+
         return query;
     }
 
+    /**
+     * Add a number of days to the date given in parameters.
+     * @param date The starting date.
+     * @param days The number of days to be added.
+     * @return The starting date + the number of days.
+     */
+    public static Date addDays(Date date, int days) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.add(Calendar.DATE, days); //minus number would decrement the days
+        return cal.getTime();
+    }
+    
     /**
      * Returns the HTML representation of the item given in parameter.
      *

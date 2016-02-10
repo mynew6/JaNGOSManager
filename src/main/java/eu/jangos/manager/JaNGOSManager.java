@@ -238,5 +238,5 @@ public class JaNGOSManager extends JFrame {
     private javax.swing.JMenuItem jMenuStartingItems;
     // End of variables declaration//GEN-END:variables
     private final DialogAbout jDialogAbout = new DialogAbout(this, true);     
-    private final FrameManageAccount fManageAccount = new FrameManageAccount();
+    private final FrameManageAccount fManageAccount = new FrameManageAccount(this);
 }
