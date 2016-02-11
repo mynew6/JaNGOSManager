@@ -131,7 +131,7 @@ public class BannedAccountService {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return (session.createCriteria(Bannedaccount.class)
                     .add(Restrictions.and(
-                                    Restrictions.eq("accountByFkBannedaccount", account),
+                                    Restrictions.eq("accountByFkBannedaccount.id", account.getId()),
                                     Restrictions.eq("active", true)))
                     .uniqueResult() != null);
         } catch (HibernateException he) {
@@ -155,7 +155,7 @@ public class BannedAccountService {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return (Bannedaccount) (session.createCriteria(Bannedaccount.class)
                     .add(Restrictions.and(
-                                    Restrictions.eq("accountByFkBannedaccount", account),
+                                    Restrictions.eq("accountByFkBannedaccount.id", account.getId()),
                                     Restrictions.eq("active", true)))
                     .uniqueResult());
         } catch (HibernateException he) {
@@ -182,7 +182,7 @@ public class BannedAccountService {
             session.getTransaction().commit();
             logger.debug("The ban record for the account with id " + ban.getId() + " updated.");
         } catch (HibernateException he) {
-            logger.error("There was an issue while updating the ban record for the account " + ban.getAccountByFkBannedaccount().getName());
+            logger.error("There was an issue while updating the ban record for the account " + ban.getId());
         }
     }
 }

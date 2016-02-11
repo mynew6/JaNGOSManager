@@ -48,6 +48,28 @@ public class Realmtimezone  implements java.io.Serializable {
         this.realms = realms;
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 17 * hash + this.id;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Realmtimezone other = (Realmtimezone) obj;
+        if (this.id != other.id) {
+            return false;
+        }
+        return true;
+    }
+
 
 
 

@@ -19,6 +19,7 @@ import eu.jangos.manager.controller.filters.BooleanType;
 import eu.jangos.manager.controller.filters.DateType;
 import eu.jangos.manager.hibernate.HibernateUtil;
 import eu.jangos.manager.model.Account;
+import eu.jangos.manager.model.Bannedaccount;
 import eu.jangos.manager.utils.Utils;
 import java.util.Date;
 import java.util.List;
@@ -249,7 +250,7 @@ public class AccountService {
      */
     public void banAccount(int id, int bannedBy, String reason, int days) {
         Account account = getAccount(id);
-        Account banisher = getAccount(id);
+        Account banisher = getAccount(bannedBy);
 
         if (account == null) {
             logger.error("A ban action was requested on an unexisting account.");
@@ -291,6 +292,21 @@ public class AccountService {
         this.bas.unban(account);
     }
 
+    /**
+     * Return the active ban information regarding this account.
+     * @param account The account for which the ban info must be returned.
+     * @return The active ban information from the database, null if the account is not banned.
+     */
+    public Bannedaccount getBanInfo(Account account)
+    {
+        if (account == null) {
+            logger.error("An ban info was requested on an unexisting account.");
+            throw new IllegalArgumentException("No account submitted.");
+        }
+        
+        return this.bas.getActiveBan(account);
+    }
+    
     /**
      * It will check that a single account with a given named exists in the
      * dabase.
