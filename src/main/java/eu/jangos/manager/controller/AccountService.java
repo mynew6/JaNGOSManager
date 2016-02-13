@@ -20,6 +20,8 @@ import eu.jangos.manager.controller.filters.DateType;
 import eu.jangos.manager.hibernate.HibernateUtil;
 import eu.jangos.manager.model.Account;
 import eu.jangos.manager.model.Bannedaccount;
+import eu.jangos.manager.model.Locale;
+import eu.jangos.manager.model.Realm;
 import eu.jangos.manager.utils.Utils;
 import java.util.Date;
 import java.util.List;
@@ -43,7 +45,7 @@ import org.slf4j.LoggerFactory;
 public class AccountService {
 
     private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
-    private final BannedAccountService bas = new BannedAccountService();
+    private final BannedAccountService bas = new BannedAccountService();    
 
     /**
      * Provides access to the list of all accounts matching the parameters.
@@ -62,12 +64,15 @@ public class AccountService {
      * @param locked The filter type for the lock value.
      * @param banned The filter type for the ban value.
      * @param online The filter type for the online value.
+     * @param locale The locale on which this search must filter.
+     * @param realm The locale on which this search must filter.
      * @return A List of Accounts matching the criterias.
      */
     public List<Account> getAllAccounts(String name,
             DateType createdFilter, Date createdFrom, Date createdTo,
             DateType loginFilter, Date loginFrom, Date loginTo,
-            BooleanType locked, BooleanType banned, BooleanType online) {
+            BooleanType locked, BooleanType banned, BooleanType online,
+            Locale locale, Realm realm) {
 
         boolean error = false;
         String message = "You must enter the following parameters:\n";
@@ -126,6 +131,18 @@ public class AccountService {
                     break;
             }
 
+            // We add the realm restrictions, if it applies.
+            if(!realm.getName().equals("ALL"))
+            {
+                query.add(Restrictions.eq("realm", realm));
+            }
+            
+            // We add the locale restrictions, if it applies.
+            if(!locale.getLocale().equals("ALL"))
+            {
+                query.add(Restrictions.eq("locale", locale));
+            }
+            
             query = Utils.applyDateFilter(query, "creation", createdFilter, createdFrom, createdTo);
             query = Utils.applyDateFilter(query, "lastlogin", loginFilter, loginFrom, loginTo);
             query = Utils.applyBooleanFilter(query, "locked", locked);
@@ -163,7 +180,10 @@ public class AccountService {
     public Account getAccount(int id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Account account = (Account) session.createCriteria(Account.class)
-                    .add(Restrictions.eq("id", id))                    
+                    .setFetchMode("locale", FetchMode.JOIN)
+                    .setFetchMode("realm", FetchMode.JOIN)
+                    .setFetchMode("bannedaccountsForFkBannedaccount", FetchMode.JOIN)
+                    .add(Restrictions.eq("id", id))                       
                     .uniqueResult();
             return account;
         } catch (HibernateException he) {
@@ -194,6 +214,9 @@ public class AccountService {
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Account account = (Account) session.createCriteria(Account.class)
+                    .setFetchMode("locale", FetchMode.JOIN)
+                    .setFetchMode("realm", FetchMode.JOIN)
+                    .setFetchMode("bannedaccountsForFkBannedaccount", FetchMode.JOIN)
                     .add(Restrictions.like("name", name))
                     .uniqueResult();
             return account;
@@ -218,7 +241,7 @@ public class AccountService {
 
         account.setLocked(true);
 
-        update(account);
+        save(account);
     }
 
     /**
@@ -236,7 +259,7 @@ public class AccountService {
 
         account.setLocked(false);
         
-        update(account);
+        save(account);
     }
 
     /**
@@ -359,29 +382,77 @@ public class AccountService {
     }
     
     /**
-     * This method updates the account information into the database.
+     * This method save the account information into the database.
      *
-     * @param account The account to update in the dabatase.
+     * @param account The account to save in the dabatase.
+     * @return An account object representing the created account.
      */
-    private void update(Account account) {
+    public Account save(Account account) {
         if (account == null) {
-            logger.error("Account to update is null.");
-            return;
-        }
-
-        if (!checkExistence(account.getName())) {
-            logger.error("Account to update does not exist.");
-            return;
-        }
-
+            logger.error("Account to save is null.");
+            return null;
+        }        
+        
+        Account acc = null;
+        
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             session.beginTransaction();
-            session.merge(account);
+            acc = (Account) session.merge(account);
             session.flush();
             session.getTransaction().commit();
-            logger.info("Account " + account.getName() + " updated.");
+            logger.info("Account " + account.getName() + " saved.");
         } catch (HibernateException he) {
-            logger.error("There was an issue while updating account " + account.getName());
+            logger.error("There was an issue while performing the save action on " + account.getName());
         }
+        
+        return acc;
+    }
+    
+    /**
+     * Check whether this account is a valid instance of an account.
+     * @param account The account to be checked.
+     * @param add Specify whether this is a new account or an update.
+     * @return true if the account is valid, false otherwise.
+     */
+    public boolean isValidAccount(Account account, boolean add) {
+        if(account == null)
+        {
+            return false;
+        }                               
+        
+        if(account.getName() == null 
+                || account.getName().isEmpty() 
+                // Checking that it does not contain non-alphanumeric characters.
+                || account.getName().replaceAll("[^\\dA-Za-z ]", "").replaceAll("\\s+", "+").isEmpty()
+                || !account.getName().replaceAll("[^\\dA-Za-z ]", "").replaceAll("\\s+", "+").equals(account.getName())
+                )            
+        {
+            return false;
+        }                
+        
+        if(add && checkExistence(account.getName()))
+        {
+            return false;
+        }
+        
+        if(!Utils.isValidEmail(account.getEmail()))
+        {
+            return false;
+        }
+        
+        if(account.getHashPass() == null
+                || account.getHashPass().isEmpty()
+                || account.getHashPass().replaceAll("[^\\dA-Za-z ]", "").replaceAll("\\s+", "+").isEmpty()
+                || !account.getHashPass().replaceAll("[^\\dA-Za-z ]", "").replaceAll("\\s+", "+").equals(account.getHashPass()))
+        {
+            return false;
+        }
+        
+        if(account.getLocale() == null)
+        {
+            return false;
+        }                
+        
+        return true;
     }
 }

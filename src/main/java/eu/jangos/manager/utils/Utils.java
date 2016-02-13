@@ -18,8 +18,11 @@ package eu.jangos.manager.utils;
 import eu.jangos.manager.controller.filters.BooleanType;
 import eu.jangos.manager.controller.filters.DateType;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.regex.Pattern;
 import javax.swing.ImageIcon;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
@@ -33,6 +36,22 @@ import org.hibernate.criterion.Restrictions;
 public class Utils {
 
     /**
+     * Pattern of an email address.
+     */
+    private static final Pattern rfc2822 = Pattern.compile(
+            "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+    );
+
+    /**
+     * Check whether the argument in parameter is a valid email address.
+     * @param email The string to be checked.
+     * @return true if the address is valid, false otherwise.
+     */
+    public static boolean isValidEmail(String email) {
+        return rfc2822.matcher(email).matches();          
+    }
+    
+    /**
      * Create an Image icon from the provided path.
      *
      * @param path The path to the icon.
@@ -45,6 +64,24 @@ public class Utils {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Create the hashpass for the database as expected by the SRP6
+     * implementation.
+     *
+     * @param name The name of the account.
+     * @param password The password.
+     * @return The hash pass calculation.
+     */
+    public static String createHashPass(String name, String password) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA1");
+
+        String user = name.toUpperCase() + ":" + password.toUpperCase();
+
+        md.update(user.getBytes());
+
+        return new BigNumber(md.digest()).toHexString();
     }
 
     /**
@@ -80,10 +117,11 @@ public class Utils {
         }
 
         return query;
-    }    
+    }
 
     /**
      * Add a boolean filter on the query passed in parameters.
+     *
      * @param query The Criteria object to be updated.
      * @param param The boolean parameter in database.
      * @param filter The BooleanType filter to be applied.
@@ -104,6 +142,7 @@ public class Utils {
 
     /**
      * Add a number of days to the date given in parameters.
+     *
      * @param date The starting date.
      * @param days The number of days to be added.
      * @return The starting date + the number of days.
@@ -114,7 +153,7 @@ public class Utils {
         cal.add(Calendar.DATE, days); //minus number would decrement the days
         return cal.getTime();
     }
-    
+
     /**
      * Returns the HTML representation of the item given in parameter.
      *

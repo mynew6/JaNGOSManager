@@ -21,6 +21,7 @@ import eu.jangos.manager.model.Realm;
 import java.util.List;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +42,7 @@ public class RealmService {
         logger.debug("Returning all realms");
                 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createCriteria(Realm.class).list();
+            return session.createCriteria(Realm.class).addOrder(Order.asc("name")).list();
         } catch (HibernateException he) {
             return null;
         }

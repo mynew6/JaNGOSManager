@@ -15,7 +15,7 @@
  */
 package eu.jangos.manager.gui.renderer.cb;
 
-import eu.jangos.manager.model.Realm;
+import eu.jangos.manager.model.Locale;
 import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -24,21 +24,21 @@ import javax.swing.table.DefaultTableCellRenderer;
  *
  * @author Warkdev
  * @version 1.0
- * @since 11-02-2016
+ * @since 12-02-2016
  */
-public class RealmCellRenderer extends DefaultTableCellRenderer{
+public class LocaleCellRenderer extends DefaultTableCellRenderer {
 
     @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {                
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         if(value == null) {
             setText("<none>");
         }
-                        
-        if(value instanceof Realm) {
-            Realm r = (Realm) value;
-            setText(r.getName());
+        
+        if(value instanceof Locale) {
+            Locale l = (Locale) value;
+            setText(l.getLocale());
         }
-
+        
         if (isSelected) {
             setBackground(table.getSelectionBackground());
         } else {
@@ -46,5 +46,5 @@ public class RealmCellRenderer extends DefaultTableCellRenderer{
         }
          
         return this;
-    }              
+    }           
 }

@@ -18,10 +18,11 @@ package eu.jangos.manager.controller;
 import eu.jangos.manager.controller.filters.BooleanType;
 import eu.jangos.manager.controller.filters.DateType;
 import eu.jangos.manager.model.Account;
+import eu.jangos.manager.model.Realm;
+import eu.jangos.manager.model.Locale;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import static org.junit.Assert.assertThat;
@@ -51,6 +52,8 @@ public class AccountServiceTest {
     BooleanType locked;
     BooleanType banned;
     BooleanType online;
+    Realm realm;
+    Locale locale;
 
     public AccountServiceTest() {
     }
@@ -77,6 +80,10 @@ public class AccountServiceTest {
         locked = BooleanType.BOTH;
         banned = BooleanType.BOTH;
         online = BooleanType.BOTH;
+        locale = new Locale();
+        locale.setLocale("ALL");
+        realm = new Realm();
+        realm.setName("ALL");
     }
 
     @After
@@ -331,7 +338,7 @@ public class AccountServiceTest {
     
     
     private List<String> getResultList() {
-        List<Account> result = as.getAllAccounts(name, createdFilter, createdFrom, createdTo, loginFilter, loginFrom, loginTo, locked, banned, online);
+        List<Account> result = as.getAllAccounts(name, createdFilter, createdFrom, createdTo, loginFilter, loginFrom, loginTo, locked, banned, online, locale, realm);
         List<String> l = new ArrayList<>();
 
         for (Account account : result) {

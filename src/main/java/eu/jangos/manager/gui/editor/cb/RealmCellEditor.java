@@ -20,6 +20,8 @@ import eu.jangos.manager.model.Realm;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.List;
 import javax.swing.AbstractCellEditor;
 import javax.swing.JComboBox;
@@ -33,26 +35,26 @@ import javax.swing.table.TableCellEditor;
  * @since 11-02-2016
  */
 public class RealmCellEditor extends AbstractCellEditor 
-        implements TableCellEditor, ActionListener {
+        implements TableCellEditor, ActionListener, FocusListener {
 
     private final List<Realm> listRealms;
     private Realm selectedRealm;
 
     public RealmCellEditor(List<Realm> listRealms) {
         this.listRealms = listRealms;
-        this.selectedRealm = null;
+        this.selectedRealm = listRealms.get(0);        
     }        
     
     @Override
-    public Object getCellEditorValue() {
+    public Object getCellEditorValue() {        
         return this.selectedRealm;
     }
 
     @Override
-    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {                   
         if(value instanceof Realm) {
             this.selectedRealm = (Realm) value;
-        }
+        }                                
         
         JComboBox<Realm> comboRealm = new JComboBox<>();
         comboRealm.setRenderer(new ListRealmCellRenderer());
@@ -62,7 +64,8 @@ public class RealmCellEditor extends AbstractCellEditor
         }
         
         comboRealm.setSelectedItem(this.selectedRealm);
-        comboRealm.addActionListener(this);
+        comboRealm.addActionListener(this);        
+        comboRealm.addFocusListener(this);
         
         if (isSelected) {
             comboRealm.setBackground(table.getSelectionBackground());
@@ -71,12 +74,22 @@ public class RealmCellEditor extends AbstractCellEditor
         }
 
         return comboRealm;
-    }
+    }        
     
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e) {        
         JComboBox<Realm> comboRealm = (JComboBox<Realm>) e.getSource();        
-        this.selectedRealm = (Realm) comboRealm.getSelectedItem();        
+        this.selectedRealm = (Realm) comboRealm.getSelectedItem();                
+    }
+
+    @Override
+    public void focusGained(FocusEvent e) {
+        return;
+    }
+
+    @Override
+    public void focusLost(FocusEvent e) {        
+        this.stopCellEditing();
     }
     
 }

@@ -15,7 +15,7 @@
  */
 package eu.jangos.manager.gui.renderer.cb;
 
-import eu.jangos.manager.model.Realm;
+import eu.jangos.manager.model.Locale;
 import java.awt.Component;
 import javax.swing.JList;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
@@ -24,9 +24,9 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
  *
  * @author Warkdev
  * @version 1.0
- * @since 11-02-2016
+ * @since 12-02-2016
  */
-public class ListRealmCellRenderer extends BasicComboBoxRenderer {
+public class ListLocaleCellRenderer extends BasicComboBoxRenderer {
 
     @Override
     /**
@@ -48,12 +48,17 @@ public class ListRealmCellRenderer extends BasicComboBoxRenderer {
      * @see ListSelectionModel
      * @see ListModel
      */
-    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {                   
-        if(value instanceof Realm) {
-            Realm r = (Realm) value;
-            setText(r.getName());
+    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        if(value == null) {
+            setText("<none>");
+        }
+        
+        if(value instanceof Locale) {
+            Locale r = (Locale) value;
+            setText(r.getLocale());
         }        
         
         return this;
-    }        
+    }
+    
 }

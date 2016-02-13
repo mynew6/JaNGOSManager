@@ -16,12 +16,19 @@
 package eu.jangos.manager.gui.model.table;
 
 import eu.jangos.manager.controller.AccountService;
+import eu.jangos.manager.controller.ParameterService;
 import eu.jangos.manager.model.Account;
 import eu.jangos.manager.model.Bannedaccount;
+import eu.jangos.manager.model.Locale;
 import eu.jangos.manager.model.Realm;
+import eu.jangos.manager.utils.ParameterConstants;
+import eu.jangos.manager.utils.Utils;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -33,30 +40,37 @@ import javax.swing.table.AbstractTableModel;
  * @since 11-02-2016
  */
 public class JTableAccountModel extends AbstractTableModel {
-    
-    private static final String[] COLUMN_NAME = {"Name", "Email", "Banned", "Unban date", "Ban reason", "Attempt", "Locked", "Locale", "Online", "Realm", "Last login", "Last IP", "Creation"};
+
+    private static final String[] COLUMN_NAME = {"Name", "Password", "Email", "Banned", "Unban date", "Ban reason", "Attempt", "Locked", "Locale", "Online", "Realm", "Last login", "Last IP", "Creation"};
     private static final int COLUMN_COUNT = COLUMN_NAME.length;
-    private static final Class[] COLUMN_CLASS = {String.class, String.class, Boolean.class, String.class, String.class, Integer.class, Boolean.class, String.class, Boolean.class, Realm.class, String.class, String.class, String.class};    
-    
+    private static final Class[] COLUMN_CLASS = {String.class, String.class, String.class, Boolean.class, String.class, String.class, Integer.class, Boolean.class, Locale.class, Boolean.class, Realm.class, String.class, String.class, String.class};
+
     private static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-    
+
     private static AccountService as;
+    private static ParameterService ps;
+    
     /**
      * listAccounts is the list of accounts for this table model.
      */
     private List<Account> listAccounts;
-    private List<Account> listEditedAccounts;    
+    private List<Account> listEditedAccounts;
+    private List<Account> listAddedAccounts;
 
     public JTableAccountModel() {
         this.listAccounts = new ArrayList<>();
-        this.listEditedAccounts = new ArrayList<>();                
+        this.listEditedAccounts = new ArrayList<>();
+        this.listAddedAccounts = new ArrayList<>();
         as = new AccountService();
+        ps = new ParameterService();
     }
 
-    public JTableAccountModel(AccountService accountService) {
+    public JTableAccountModel(AccountService accountService, ParameterService parameterService) {
         this.listAccounts = new ArrayList<>();
-        this.listEditedAccounts = new ArrayList<>();        
+        this.listEditedAccounts = new ArrayList<>();
+        this.listAddedAccounts = new ArrayList<>();
         as = accountService;
+        ps = parameterService;
     }
 
     @Override
@@ -80,16 +94,18 @@ public class JTableAccountModel extends AbstractTableModel {
         }
 
         Bannedaccount banInfo = as.getBanInfo(this.listAccounts.get(rowIndex));
-        
+
         switch (COLUMN_NAME[columnIndex]) {
             case "Name":
                 return this.listAccounts.get(rowIndex).getName();
+            case "Password":
+                return this.listAccounts.get(rowIndex).getHashPass();
             case "Email":
                 return this.listAccounts.get(rowIndex).getEmail();
             case "Locale":
-                return this.listAccounts.get(rowIndex).getLocale().getLocale();
-            case "Realm":
-                return this.listAccounts.get(rowIndex).getRealm();
+                return this.listAccounts.get(rowIndex).getLocale();
+            case "Realm":                
+                return this.listAccounts.get(rowIndex).getRealm();                
             case "Last IP":
                 return this.listAccounts.get(rowIndex).getLastIp();
             case "Attempt":
@@ -121,49 +137,105 @@ public class JTableAccountModel extends AbstractTableModel {
 
         if (columnIndex < 0 || columnIndex > COLUMN_COUNT) {
             return;
-        }       
-        
-        switch (COLUMN_NAME[columnIndex]) {
+        }
+
+        switch (COLUMN_NAME[columnIndex]) {    
             case "Name":
-                if(!this.listAccounts.get(rowIndex).getName().equals((String) object))
-                {
-                    this.listAccounts.get(rowIndex).setName((String) object);
-                    this.listEditedAccounts.add(this.listAccounts.get(rowIndex));
+                String name = ((String) object).toUpperCase();
+                if (!this.listAccounts.get(rowIndex).getName().equals(name)) {
+                    this.listAccounts.get(rowIndex).setName(name);
+                    if(!this.listEditedAccounts.contains(this.listAccounts.get(rowIndex)))
+                    {
+                        this.listEditedAccounts.add(this.listAccounts.get(rowIndex));
+                    }
                 }
                 break;
+            case "Password": 
+                // We set the hashpass to the corresponding value to not update it in case of failure with MessageDisgest.
+                String hashpass = this.listAccounts.get(rowIndex).getHashPass();
+                try {
+                    hashpass = Utils.createHashPass(this.listAccounts.get(rowIndex).getName(), (String) object);
+                } catch (NoSuchAlgorithmException ex) {                    
+                }            
+                if (!this.listAccounts.get(rowIndex).getHashPass().equals(hashpass)) {
+                    this.listAccounts.get(rowIndex).setHashPass(hashpass);
+                    // Resetting the verifier and the salt
+                    // Will be recalculated by the authentication server.
+                    this.listAccounts.get(rowIndex).setVerifier(null);
+                    this.listAccounts.get(rowIndex).setSalt(null);
+                    this.listAccounts.get(rowIndex).setSessionkey(null);
+                    if(!this.listEditedAccounts.contains(this.listAccounts.get(rowIndex)))
+                    {
+                        this.listEditedAccounts.add(this.listAccounts.get(rowIndex));
+                    }
+                }
+            break;
             case "Email":
-                if(!this.listAccounts.get(rowIndex).getEmail().equals((String) object))
-                {
+                if (!this.listAccounts.get(rowIndex).getEmail().equals((String) object)) {
                     this.listAccounts.get(rowIndex).setEmail((String) object);
-                    this.listEditedAccounts.add(this.listAccounts.get(rowIndex));
-                }                
+                    if(!this.listEditedAccounts.contains(this.listAccounts.get(rowIndex)))
+                    {
+                        this.listEditedAccounts.add(this.listAccounts.get(rowIndex));
+                    }
+                }
                 break;
             case "Locale":
-                //this.listAccounts.get(rowIndex).setEmail((String) object);
+                if(!this.listAccounts.get(rowIndex).getLocale().equals((Locale) object)) {                                        
+                    this.listAccounts.get(rowIndex).setLocale((Locale) object);
+                    if(!this.listEditedAccounts.contains(this.listAccounts.get(rowIndex)))
+                    {
+                        this.listEditedAccounts.add(this.listAccounts.get(rowIndex));
+                    }
+                }                                
                 break;
-            case "Realm":
-                this.listAccounts.get(rowIndex).setRealm((Realm) object);
-                break;            
-            case "Attempt":
-                if(this.listAccounts.get(rowIndex).getFailedattempt() != (int) object)
-                {
-                    this.listAccounts.get(rowIndex).setFailedattempt((int) object);
-                    this.listEditedAccounts.add(this.listAccounts.get(rowIndex));
+            case "Realm":                                
+                if((this.listAccounts.get(rowIndex).getRealm() != null
+                        && !this.listAccounts.get(rowIndex).getRealm().equals((Realm) object)) 
+                        || (this.listAccounts.get(rowIndex).getRealm() == null && object != null)) {
+                    if(((Realm) object).getId() == null)
+                    {
+                        this.listAccounts.get(rowIndex).setRealm(null);
+                    } else {
+                        this.listAccounts.get(rowIndex).setRealm((Realm) object);
+                    }
+                    if(!this.listEditedAccounts.contains(this.listAccounts.get(rowIndex)))
+                    {
+                        this.listEditedAccounts.add(this.listAccounts.get(rowIndex));
+                    }
                 }
-                break;            
+                break;
+            case "Attempt":
+                if (this.listAccounts.get(rowIndex).getFailedattempt() != (int) object) {
+                    this.listAccounts.get(rowIndex).setFailedattempt((int) object);
+                    if(this.listAccounts.get(rowIndex).getFailedattempt() >= Integer.parseInt(ps.getParameter(ParameterConstants.KEY_MAX_FAILED_ATTEMPT)))
+                    {
+                        this.listAccounts.get(rowIndex).setLocked(true);
+                    } else {
+                        this.listAccounts.get(rowIndex).setLocked(false);
+                    }
+                    if(!this.listEditedAccounts.contains(this.listAccounts.get(rowIndex)))
+                    {
+                        this.listEditedAccounts.add(this.listAccounts.get(rowIndex));
+                    }
+                }
+                break;
             case "Online":
-                if(this.listAccounts.get(rowIndex).isOnline() != (boolean) object)
-                {
+                if (this.listAccounts.get(rowIndex).isOnline() != (boolean) object) {
                     this.listAccounts.get(rowIndex).setOnline((boolean) object);
-                    this.listEditedAccounts.add(this.listAccounts.get(rowIndex));
-                }                
+                    if(!this.listEditedAccounts.contains(this.listAccounts.get(rowIndex)))
+                    {
+                        this.listEditedAccounts.add(this.listAccounts.get(rowIndex));
+                    }
+                }
                 break;
             case "Locked":
-                if(this.listAccounts.get(rowIndex).isLocked() != (boolean) object)
-                {
+                if (this.listAccounts.get(rowIndex).isLocked() != (boolean) object) {
                     this.listAccounts.get(rowIndex).setLocked((boolean) object);
-                    this.listEditedAccounts.add(this.listAccounts.get(rowIndex));
-                }                
+                    if(!this.listEditedAccounts.contains(this.listAccounts.get(rowIndex)))
+                    {
+                        this.listEditedAccounts.add(this.listAccounts.get(rowIndex));
+                    }
+                }
                 break;
         }
     }
@@ -178,17 +250,18 @@ public class JTableAccountModel extends AbstractTableModel {
             return false;
         }
 
-        switch(COLUMN_NAME[columnIndex])
-        {
+        switch (COLUMN_NAME[columnIndex]) {
+            case "Name":
+                return this.listAddedAccounts.contains(this.listAccounts.get(rowIndex));                                                    
             case "Last IP":
             case "Banned":
-            case "Unban date":                
-            case "Ban reason":                
-            case "Last login":                
+            case "Unban date":
+            case "Ban reason":
+            case "Last login":
             case "Creation":
-                return false;
+                return false;                
         }
-        
+
         return true;
     }
 
@@ -222,29 +295,28 @@ public class JTableAccountModel extends AbstractTableModel {
         }
 
         return COLUMN_CLASS[columnIndex];
-    }            
+    }
 
     @Override
     /**
-     * Returns a column given its name.
-     * Implementation is naive so this should be overridden if
-     * this method is to be called often. This method is not
-     * in the <code>TableModel</code> interface and is not used by the
+     * Returns a column given its name. Implementation is naive so this should
+     * be overridden if this method is to be called often. This method is not in
+     * the <code>TableModel</code> interface and is not used by the
      * <code>JTable</code>.
      *
      * @param columnName string containing name of column to be located
      * @return the column with <code>columnName</code>, or -1 if not found
      */
-    public int findColumn(String columnName) {   
-        for(int i = 0; i < COLUMN_COUNT; i++)
-        {
-            if(COLUMN_NAME[i].equals(columnName))
+    public int findColumn(String columnName) {
+        for (int i = 0; i < COLUMN_COUNT; i++) {
+            if (COLUMN_NAME[i].equals(columnName)) {
                 return i;
+            }
         }
-        
+
         return -1;
-    }        
-    
+    }
+
     /**
      * Remove the row at the given index.
      *
@@ -255,10 +327,55 @@ public class JTableAccountModel extends AbstractTableModel {
             return;
         }
 
+        this.listAddedAccounts.remove(this.listAccounts.get(idx));
+        this.listEditedAccounts.remove(this.listAccounts.get(idx));
         this.listAccounts.remove(idx);
         fireTableRowsDeleted(idx, idx);
     }
 
+    /**
+     * Add a new row into the model.
+     * @param account The account to be added in the backing model.
+     */
+    public void addRow(Account account) {
+        this.listAccounts.add(account);
+        this.listAddedAccounts.add(account);
+        fireTableRowsInserted(this.listAccounts.size(), this.listAccounts.size());
+    }
+    
+    /**
+     * Checks whether this account is a newly added one or an edited one.
+     * @param account The account to check.
+     * @return true if this is a new row, false otherwise.
+     */
+    public boolean isNewRow(Account account) {
+        return this.listAddedAccounts.contains(account);
+    }
+    
+    /**
+     * Merge the account with an existing row of the backing list.
+     * @param account The account to be merged.
+     */
+    public void mergeRow(Account account) {
+        boolean found = false;
+        for(int i = 0; i < this.listAccounts.size(); i++)
+        {
+            if(this.listAccounts.get(i).getName().equals(account.getName()))
+            {
+                this.listAccounts.set(i, account);
+                found = true;
+                fireTableRowsUpdated(i, i);
+                break;
+            }
+        }
+        
+        if(!found)
+        {
+            this.listAccounts.add(account);
+            fireTableRowsInserted(this.listAccounts.size(), this.listAccounts.size());
+        }
+    }
+    
     /**
      * This method erase the content of the TableAccountMode.
      */
@@ -286,7 +403,7 @@ public class JTableAccountModel extends AbstractTableModel {
     public void setListEditedAccounts(List<Account> listEditedAccounts) {
         this.listEditedAccounts = listEditedAccounts;
     }
-       
+
     /**
      * Return the account with the given ID index.
      *
@@ -302,4 +419,19 @@ public class JTableAccountModel extends AbstractTableModel {
         return this.listAccounts.get(id);
     }
 
+    /**
+     * Remove the account from the added account list.
+     * @param account The account to be removed from the list.
+     */
+    public void removeAddedAccount(Account account) {
+        this.listAddedAccounts.remove(account);
+    }
+    
+    /**
+     * Remove the account from the edited account list.
+     * @param account The account to be removed from the list.
+     */
+    public void removeEditedAccount(Account account) {
+        this.listEditedAccounts.remove(account);
+    }
 }
