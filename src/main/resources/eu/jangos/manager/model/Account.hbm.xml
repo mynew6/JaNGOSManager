@@ -104,7 +104,7 @@
             </key>
             <one-to-many class="eu.jangos.manager.model.Bannedip" />
         </set>
-        <set name="bannedaccountsForFkBannedaccount" table="bannedaccount" inverse="true" lazy="true" fetch="select">
+        <set name="bannedaccountsForFkBannedaccount" table="bannedaccount" inverse="true" lazy="true" fetch="select" cascade="delete">
             <key>
                 <column name="fk_bannedaccount" not-null="true">
                     <comment>ID of the banned account.</comment>
@@ -112,7 +112,7 @@
             </key>
             <one-to-many class="eu.jangos.manager.model.Bannedaccount" />
         </set>
-        <set name="realmAccounts" table="realm_account" inverse="true" lazy="true" fetch="select">
+        <set name="realmAccounts" table="realm_account" inverse="true" lazy="true" fetch="select" cascade="delete">
             <key>
                 <column name="fk_account" not-null="true">
                     <comment>Foreign key to the account.</comment>
