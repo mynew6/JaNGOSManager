@@ -33,6 +33,11 @@ public class DialogBan extends javax.swing.JDialog {
      */
     private int code = JOptionPane.CANCEL_OPTION;
     
+    public DialogBan() {
+        super();
+        initComponents();
+    }
+    
     /**
      * Creates new form DialogBan
      * @param parent

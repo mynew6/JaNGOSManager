@@ -15,15 +15,20 @@ package eu.jangos.manager;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import eu.jangos.manager.controller.AccountService;
+import eu.jangos.manager.controller.LocaleService;
+import eu.jangos.manager.controller.ParameterService;
+import eu.jangos.manager.controller.RealmService;
+import eu.jangos.manager.controller.RealmTypeService;
+import eu.jangos.manager.controller.TimezoneService;
+import eu.jangos.manager.controller.exception.LoginException;
 import eu.jangos.manager.gui.dialog.DialogAbout;
 import eu.jangos.manager.gui.frame.FrameManageAccount;
+import eu.jangos.manager.gui.frame.FrameManageRealm;
+import eu.jangos.manager.model.Account;
 import eu.jangos.manager.utils.Utils;
-import java.awt.Color;
-import java.beans.PropertyVetoException;
-import java.util.logging.Level;
 import javax.swing.JFrame;
-import javax.swing.UIManager;
+import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,17 +39,26 @@ import org.slf4j.LoggerFactory;
 public class JaNGOSManager extends JFrame {
 
     private static final Logger logger = LoggerFactory.getLogger(JaNGOSManager.class);
-    private static final String ICON_IMAGE = "/images/world-icon.png";   
+    private static final String ICON_IMAGE = "/images/world-icon.png";
+    private static final String TITLE = "JaNGOS Manager Application";
+    private static final AccountService as = new AccountService();
+    private static final RealmService rs = new RealmService();
+    private static final LocaleService ls = new LocaleService();
+    private static final ParameterService ps = new ParameterService();
+    private static final RealmTypeService rts = new RealmTypeService();
+    private static final TimezoneService ts = new TimezoneService();
+            
+    // This variable represent the logged in account.
+    private static Account account;
 
     /**
      * Creates new form JE4WManagerWindow
      */
     public JaNGOSManager() {
         initComponents();
-        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);        
+        this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
         this.setIconImage(Utils.createImageIcon(ICON_IMAGE, getClass()).getImage());
-        this.setLocationRelativeTo(null);   
-        this.jDesktopMainPane.add(this.fManageAccount);
+        this.setLocationRelativeTo(null);
     }
 
     /**
@@ -55,10 +69,17 @@ public class JaNGOSManager extends JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
+        dialogLogin = new eu.jangos.manager.gui.dialog.DialogLogin();
         jDesktopMainPane = new javax.swing.JDesktopPane();
+        fManageAccount = new FrameManageAccount(this.as, this.rs, this.ls, this.ps)
+        ;
+        fManageRealm = new FrameManageRealm(this.rs, this.rts, this.ts);
+        ;
         jMenuBar = new javax.swing.JMenuBar();
         jMenuFile = new javax.swing.JMenu();
+        jMenuDisconnect = new javax.swing.JMenuItem();
         jMenuQuit = new javax.swing.JMenuItem();
         jMenuAccount = new javax.swing.JMenu();
         jMenuManageAccounts = new javax.swing.JMenuItem();
@@ -70,10 +91,22 @@ public class JaNGOSManager extends JFrame {
         jMenuHelp = new javax.swing.JMenu();
         jMenuItemAbout = new javax.swing.JMenuItem();
 
+        dialogLogin.addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                dialogLoginWindowClosed(evt);
+            }
+        });
+        dialogLogin.getAccessibleContext().setAccessibleParent(this);
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("JaNGOS Manager Application");
         setIconImage(getIconImage());
         setMinimumSize(new java.awt.Dimension(720, 480));
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                formComponentShown(evt);
+            }
+        });
 
         jDesktopMainPane.setMinimumSize(new java.awt.Dimension(1157, 725));
         jDesktopMainPane.addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -81,21 +114,49 @@ public class JaNGOSManager extends JFrame {
                 jDesktopMainPaneComponentResized(evt);
             }
         });
-
-        javax.swing.GroupLayout jDesktopMainPaneLayout = new javax.swing.GroupLayout(jDesktopMainPane);
+        java.awt.GridBagLayout jDesktopMainPaneLayout = new java.awt.GridBagLayout();
+        jDesktopMainPaneLayout.columnWidths = new int[] {1};
+        jDesktopMainPaneLayout.rowHeights = new int[] {1};
+        jDesktopMainPaneLayout.columnWeights = new double[] {1.0};
+        jDesktopMainPaneLayout.rowWeights = new double[] {1.0};
         jDesktopMainPane.setLayout(jDesktopMainPaneLayout);
-        jDesktopMainPaneLayout.setHorizontalGroup(
-            jDesktopMainPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1157, Short.MAX_VALUE)
-        );
-        jDesktopMainPaneLayout.setVerticalGroup(
-            jDesktopMainPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 725, Short.MAX_VALUE)
-        );
+
+        fManageAccount.setVisible(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = -1188;
+        gridBagConstraints.ipady = -1034;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        jDesktopMainPane.add(fManageAccount, gridBagConstraints);
+        try {
+            fManageAccount.setMaximum(true);
+        } catch (java.beans.PropertyVetoException e1) {
+            e1.printStackTrace();
+        }
+
+        fManageRealm.setVisible(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        jDesktopMainPane.add(fManageRealm, gridBagConstraints);
+        try {
+            fManageRealm.setMaximum(true);
+        } catch (java.beans.PropertyVetoException e1) {
+            e1.printStackTrace();
+        }
 
         getContentPane().add(jDesktopMainPane, java.awt.BorderLayout.CENTER);
 
         jMenuFile.setText("File");
+
+        jMenuDisconnect.setText("Disconnect");
+        jMenuDisconnect.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jMenuDisconnectMouseReleased(evt);
+            }
+        });
+        jMenuFile.add(jMenuDisconnect);
 
         jMenuQuit.setText("Quit");
         jMenuQuit.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -118,6 +179,11 @@ public class JaNGOSManager extends JFrame {
         jMenuAccount.add(jMenuManageAccounts);
 
         jMenuManageRealms.setText("Realms");
+        jMenuManageRealms.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jMenuManageRealmsMouseReleased(evt);
+            }
+        });
         jMenuAccount.add(jMenuManageRealms);
 
         jMenuManageParameters.setText("Parameters");
@@ -171,16 +237,56 @@ public class JaNGOSManager extends JFrame {
 
     private void jMenuManageAccountsMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuManageAccountsMouseReleased
         fManageAccount.setVisible(true);
-        try {
-            fManageAccount.setMaximum(true);
-        } catch (PropertyVetoException ex) {
-            java.util.logging.Logger.getLogger(JaNGOSManager.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }//GEN-LAST:event_jMenuManageAccountsMouseReleased
 
     private void jDesktopMainPaneComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_jDesktopMainPaneComponentResized
-        //System.out.println("my size is: "+this.getSize());
+
     }//GEN-LAST:event_jDesktopMainPaneComponentResized
+
+    private void formComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentShown
+        // The user is requested to login first. 
+        this.dialogLogin.setLocationRelativeTo(this);
+        this.dialogLogin.setVisible(true);
+    }//GEN-LAST:event_formComponentShown
+
+    private void dialogLoginWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogLoginWindowClosed
+        switch (this.dialogLogin.getCode()) {
+            case JOptionPane.CANCEL_OPTION:
+                this.fManageAccount.dispose();
+                this.dialogLogin.dispose();
+                this.dispose();
+                System.exit(0);
+                break;
+            case JOptionPane.OK_OPTION: {
+                try {
+                    account = as.login(dialogLogin.getName(), dialogLogin.getPassword());
+                    this.setTitle(this.getTitle() + " - logged as " + account.getName());
+                    this.fManageAccount.setManager(account);
+                } catch (LoginException ex) {
+                    showError("Error", ex.getMessage());
+                    this.dialogLogin.setVisible(true);
+                }
+            }
+            break;
+        }
+    }//GEN-LAST:event_dialogLoginWindowClosed
+
+    private void jMenuDisconnectMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuDisconnectMouseReleased
+        account = null;
+        this.fManageAccount.setManager(null);
+        this.fManageAccount.hide();
+        this.setTitle(TITLE);
+        this.dialogLogin.reset();
+        this.dialogLogin.setVisible(true);
+    }//GEN-LAST:event_jMenuDisconnectMouseReleased
+
+    private void jMenuManageRealmsMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuManageRealmsMouseReleased
+        fManageRealm.setVisible(true);
+    }//GEN-LAST:event_jMenuManageRealmsMouseReleased
+
+    private void showError(String title, String message) {
+        JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
+    }
 
     /**
      * @param args the command line arguments
@@ -191,12 +297,14 @@ public class JaNGOSManager extends JFrame {
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
-        UIManager.put("info", Color.BLACK);
-        
+        /**
+         * UIManager.put("info", Color.BLACK);
+         */
+
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());                    
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
             }
@@ -223,9 +331,13 @@ public class JaNGOSManager extends JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private eu.jangos.manager.gui.dialog.DialogLogin dialogLogin;
+    private eu.jangos.manager.gui.frame.FrameManageAccount fManageAccount;
+    private eu.jangos.manager.gui.frame.FrameManageRealm fManageRealm;
     private javax.swing.JDesktopPane jDesktopMainPane;
     private javax.swing.JMenu jMenuAccount;
     private javax.swing.JMenuBar jMenuBar;
+    private javax.swing.JMenuItem jMenuDisconnect;
     private javax.swing.JMenu jMenuFile;
     private javax.swing.JMenu jMenuHelp;
     private javax.swing.JMenuItem jMenuItemAbout;
@@ -237,6 +349,5 @@ public class JaNGOSManager extends JFrame {
     private javax.swing.JMenuItem jMenuQuit;
     private javax.swing.JMenuItem jMenuStartingItems;
     // End of variables declaration//GEN-END:variables
-    private final DialogAbout jDialogAbout = new DialogAbout(this, true);     
-    private final FrameManageAccount fManageAccount = new FrameManageAccount(this);
+    private final DialogAbout jDialogAbout = new DialogAbout(this, true);
 }

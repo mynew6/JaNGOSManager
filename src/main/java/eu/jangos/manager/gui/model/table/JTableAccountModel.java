@@ -41,28 +41,28 @@ import javax.swing.table.AbstractTableModel;
  */
 public class JTableAccountModel extends AbstractTableModel {
 
-    private static final String[] COLUMN_NAME = {"Name", "Password", "Email", "Banned", "Unban date", "Ban reason", "Attempt", "Locked", "Locale", "Online", "Realm", "Last login", "Last IP", "Creation"};
-    private static final int COLUMN_COUNT = COLUMN_NAME.length;
-    private static final Class[] COLUMN_CLASS = {String.class, String.class, String.class, Boolean.class, String.class, String.class, Integer.class, Boolean.class, Locale.class, Boolean.class, Realm.class, String.class, String.class, String.class};
+    private final String[] COLUMN_NAME = {"Name", "Password", "Email", "Banned", "Unban date", "Ban reason", "Attempt", "Locked", "Locale", "Online", "Realm", "Last login", "Last IP", "Creation"};
+    private final int COLUMN_COUNT = COLUMN_NAME.length;
+    private final Class[] COLUMN_CLASS = {String.class, String.class, String.class, Boolean.class, String.class, String.class, Integer.class, Boolean.class, Locale.class, Boolean.class, Realm.class, String.class, String.class, String.class};
 
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-    private static AccountService as;
-    private static ParameterService ps;
+    private AccountService as;
+    private ParameterService ps;
     
     /**
      * listAccounts is the list of accounts for this table model.
      */
     private List<Account> listAccounts;
     private List<Account> listEditedAccounts;
-    private List<Account> listAddedAccounts;
+    private final List<Account> listAddedAccounts;
 
     public JTableAccountModel() {
         this.listAccounts = new ArrayList<>();
         this.listEditedAccounts = new ArrayList<>();
         this.listAddedAccounts = new ArrayList<>();
-        as = new AccountService();
-        ps = new ParameterService();
+        as = null;
+        ps = null;
     }
 
     public JTableAccountModel(AccountService accountService, ParameterService parameterService) {
@@ -433,5 +433,21 @@ public class JTableAccountModel extends AbstractTableModel {
      */
     public void removeEditedAccount(Account account) {
         this.listEditedAccounts.remove(account);
+    }
+
+    public AccountService getAs() {
+        return this.as;
+    }
+
+    public void setAs(AccountService as) {
+        this.as = as;
+    }
+
+    public ParameterService getPs() {
+        return this.ps;
+    }
+
+    public void setPs(ParameterService ps) {
+        this.ps = ps;
     }
 }

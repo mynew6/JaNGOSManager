@@ -18,10 +18,15 @@ package eu.jangos.manager.controller;
 
 import eu.jangos.manager.hibernate.HibernateUtil;
 import eu.jangos.manager.model.Realm;
+import eu.jangos.manager.model.Realmtimezone;
+import eu.jangos.manager.model.Realmtype;
 import java.util.List;
+import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +38,39 @@ import org.slf4j.LoggerFactory;
  */
 public class RealmService {
     private static final Logger logger = LoggerFactory.getLogger(RealmService.class);        
+    
+    /**
+     * Return the list of all realms matching the given criterias.
+     * @param name The name of the realm to be found.
+     * @param type The type of realm to be found.
+     * @param zone The zone of realm to be found.
+     * @return A list of realm corresponding to the given filters.
+     */
+    public List<Realm> getAllRealms(String name, Realmtype type, Realmtimezone zone) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Criteria query = session.createCriteria(Realm.class);
+            
+            query.setFetchMode("realmtimezone", FetchMode.JOIN);
+            query.setFetchMode("realmtype", FetchMode.JOIN);
+
+            query.add(Restrictions.like("name", name));
+            
+            if(!type.getType().equals("ALL"))
+            {
+                query.add(Restrictions.eq("realmtype", type));
+            }
+            
+            if(!zone.getName().equals("ALL"))
+            {
+                query.add(Restrictions.eq("realmtimezone", zone));
+            }
+            
+            return query.list();
+        } catch (HibernateException he) {
+            logger.error("There was an error connecting to the database.");
+            return null;
+        }
+    }
     
     /**
      * Provides all realms stored in the database.

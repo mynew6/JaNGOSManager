@@ -15,6 +15,7 @@
  */
 package eu.jangos.manager.controller;
 
+import eu.jangos.manager.controller.exception.LoginException;
 import eu.jangos.manager.controller.filters.BooleanType;
 import eu.jangos.manager.controller.filters.DateType;
 import eu.jangos.manager.hibernate.HibernateUtil;
@@ -23,6 +24,7 @@ import eu.jangos.manager.model.Bannedaccount;
 import eu.jangos.manager.model.Locale;
 import eu.jangos.manager.model.Realm;
 import eu.jangos.manager.utils.Utils;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
 import org.hibernate.Criteria;
@@ -47,6 +49,59 @@ public class AccountService {
     private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
     private final BannedAccountService bas = new BannedAccountService();    
 
+    /**
+     * This method will login the account based on the given parameters.
+     * 
+     * @param name The name of the account to log in.
+     * @param password The password of the account trying to log in.
+     * @return The logged in account.
+     * @throws LoginException is thrown if there is an issue while authenticating this account.
+     */
+    public Account login(String name, char[] password) throws LoginException
+    {
+        String hashpass = null;
+        try {
+             hashpass = Utils.createHashPass(name, new String(password));
+        } catch (NoSuchAlgorithmException ex) {
+            throw new LoginException("There was an error while generating the hashpass.");
+        }                                
+        
+        Account account = null;
+        name = name.replaceAll("[^\\dA-Za-z ]", "").replaceAll("\\s+", "+");
+        
+        try(Session session = HibernateUtil.getSessionFactory().openSession())
+        {
+            account = (Account) session.createCriteria(Account.class)
+                    .setFetchMode("locale", FetchMode.JOIN)
+                    .setFetchMode("realm", FetchMode.JOIN)
+                    .setFetchMode("bannedaccountsForFkBannedaccount", FetchMode.JOIN)
+                    .add(Restrictions.and(
+                            Restrictions.like("name", name),
+                            Restrictions.like("hashPass", hashpass)
+                    ))                   
+                    .uniqueResult();
+        } catch (HibernateException he) {           
+            throw new LoginException("There was an error while trying to retrieve the account information from the database.");
+        }
+        
+        if(account == null)
+        {
+            throw new LoginException("This account does not exist");
+        }
+        
+        if(account.isLocked())
+        {
+            throw new LoginException("This account is locked, we don't think you should be allowed to manage the database.");
+        }
+        
+        if(isAccountBanned(account))
+        {
+            throw new LoginException("This account is banned, we don't think you should be allowed to manage the database.");
+        }                
+        
+        return account;
+    }
+    
     /**
      * Provides access to the list of all accounts matching the parameters.
      *

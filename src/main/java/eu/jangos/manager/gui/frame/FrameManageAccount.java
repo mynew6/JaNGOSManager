@@ -21,11 +21,9 @@ import eu.jangos.manager.controller.ParameterService;
 import eu.jangos.manager.controller.RealmService;
 import eu.jangos.manager.controller.filters.BooleanType;
 import eu.jangos.manager.controller.filters.DateType;
-import eu.jangos.manager.gui.dialog.DialogBan;
 import eu.jangos.manager.gui.editor.cb.LocaleCellEditor;
 import eu.jangos.manager.gui.editor.cb.RealmCellEditor;
 import eu.jangos.manager.gui.editor.jspinner.SpinnerCellEditor;
-import eu.jangos.manager.gui.model.table.JTableAccountModel;
 import eu.jangos.manager.gui.renderer.cb.ListLocaleCellRenderer;
 import eu.jangos.manager.gui.renderer.cb.ListRealmCellRenderer;
 import eu.jangos.manager.gui.renderer.cb.LocaleCellRenderer;
@@ -41,11 +39,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import javax.swing.ComboBoxEditor;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 import org.slf4j.Logger;
@@ -64,13 +59,13 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
     private static final String ICON_IMAGE = "/images/account.png";
     private static final int DEFAULT_BAN_DURATION = 60;
 
-    private final AccountService as = new AccountService();
-    private final RealmService rs = new RealmService();
-    private final LocaleService ls = new LocaleService();
-    private final ParameterService ps = new ParameterService();
-    
-    private final DialogBan dialogBan;
-    private final JFrame parent;
+    private final AccountService as;
+    private final RealmService rs;
+    private final LocaleService ls;
+    private final ParameterService ps;
+    private Account manager;
+        
+    //private final JFrame parent;
 
     private SwingWorkerAccount worker;
 
@@ -78,27 +73,40 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
     private BooleanType banned;
     private BooleanType online;
     private DateType login;
-    private DateType creation;
-
+    private DateType creation;    
+    
+    public FrameManageAccount() {
+        this.as = null;
+        this.rs = null;
+        this.ls = null;
+        this.ps = null;
+        initComponents();
+    }            
+    
     /**
      * Creates new form FrameManageAccount
-     *
-     * @param parent The parent JFrame of this internal frame.
+     *     
+     * @param administrator
+     * @param as
+     * @param rs
+     * @param ps
+     * @param ls
      */
-    public FrameManageAccount(JFrame parent) {
-        initComponents();
-
-        this.parent = parent;
-        this.dialogBan = new DialogBan(this.parent, true);
-
+    public FrameManageAccount(AccountService as, RealmService rs, LocaleService ls, ParameterService ps) {
+        this.manager = null;
+        this.as = as;
+        this.rs = rs;
+        this.ls = ls;
+        this.ps = ps;
+        
+        initComponents();                    
+        
         // We set a default duration
         this.dialogBan.setDuration(DEFAULT_BAN_DURATION);
         this.dialogBan.setCode(JOptionPane.CANCEL_OPTION);
 
         // Sort this table by name per default.        
-        this.setFrameIcon(Utils.createImageIcon(ICON_IMAGE, getClass()));
-
-        this.jTableAccounts.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        this.setFrameIcon(Utils.createImageIcon(ICON_IMAGE, getClass()));        
 
         this.worker = new SwingWorkerAccount();        
         
@@ -147,6 +155,8 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
+        dialogBan = new eu.jangos.manager.gui.dialog.DialogBan();
+        jTableAccountsModel = new eu.jangos.manager.gui.model.table.JTableAccountModel();
         jScrollPaneTableAccounts = new javax.swing.JScrollPane();
         jTableAccounts = new javax.swing.JTable();
         jPanelFilters = new javax.swing.JPanel();
@@ -191,6 +201,9 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         jButtonCreate = new javax.swing.JButton();
         jButtonSave = new javax.swing.JButton();
 
+        jTableAccountsModel.setAs(this.as);
+        jTableAccountsModel.setPs(this.ps);
+
         setClosable(true);
         setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
         setIconifiable(true);
@@ -200,7 +213,8 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         setMinimumSize(new java.awt.Dimension(720, 480));
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        jTableAccounts.setModel(this.jTableAccountsModel);
+        jTableAccounts.setModel(jTableAccountsModel);
+        jTableAccounts.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         jTableAccounts.getTableHeader().setReorderingAllowed(false);
         jScrollPaneTableAccounts.setViewportView(jTableAccounts);
 
@@ -850,6 +864,11 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
 
         for (int i = (rows.length - 1); i >= 0; i--) {
             try {
+                if(this.jTableAccountsModel.getAccount(rows[i]).equals(this.manager))
+                {
+                    showError("Oups","We are sorry but you can't delete your own account");
+                    continue;
+                }
                 if(!this.jTableAccountsModel.isNewRow(this.jTableAccountsModel.getAccount(rows[i])))
                 {                    
                     this.as.delete(this.jTableAccountsModel.getAccount(rows[i]).getId());
@@ -871,6 +890,11 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
 
         for (int i = (rows.length - 1); i >= 0; i--) {
             try {
+                if(this.jTableAccountsModel.getAccount(rows[i]).equals(this.manager))
+                {
+                    showError("Oups","We are sorry but you can't lock your own account");
+                    continue;
+                }
                 this.as.lockAccount(this.jTableAccountsModel.getAccount(rows[i]).getId());
                 this.jTableAccountsModel.getAccount(rows[i]).setLocked(true);
                 this.jTableAccountsModel.fireTableRowsUpdated(rows[i], rows[i]);
@@ -906,13 +930,17 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         }
 
         Arrays.sort(rows);
-
-        // Fix me, ban account.
+        
         for (int i = (rows.length - 1); i >= 0; i--) {
             try {
+                if(this.jTableAccountsModel.getAccount(rows[i]).equals(this.manager))
+                {
+                    showError("Oups","We are sorry but you can't ban yourself");
+                    continue;
+                }
                 askForBanReason(this.jTableAccountsModel.getAccount(rows[i]).getName());
                 if (dialogBan.getCode() == JOptionPane.OK_OPTION) {
-                    this.as.banAccount(this.jTableAccountsModel.getAccount(rows[i]).getId(), 1, dialogBan.getReason(), dialogBan.getDuration());
+                    this.as.banAccount(this.jTableAccountsModel.getAccount(rows[i]).getId(), this.manager.getId(), dialogBan.getReason(), dialogBan.getDuration());
                     this.jTableAccountsModel.fireTableRowsUpdated(rows[i], rows[i]);
                 }
                 dialogBan.setDuration(DEFAULT_BAN_DURATION);
@@ -958,7 +986,16 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
     }
 
+    public Account getManager() {
+        return manager;
+    }
+
+    public void setManager(Account manager) {
+        this.manager = manager;
+    }    
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private eu.jangos.manager.gui.dialog.DialogBan dialogBan;
     private javax.swing.JButton jButtonBan;
     private javax.swing.JButton jButtonCreate;
     private javax.swing.JButton jButtonDelete;
@@ -1002,8 +1039,8 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
     private javax.swing.JScrollPane jScrollPaneTableAccounts;
     private javax.swing.JTextField jTFName;
     private javax.swing.JTable jTableAccounts;
+    private eu.jangos.manager.gui.model.table.JTableAccountModel jTableAccountsModel;
     // End of variables declaration//GEN-END:variables
-    private final JTableAccountModel jTableAccountsModel = new JTableAccountModel(this.as, this.ps);
 
     private class SwingWorkerAccount extends SwingWorker<List<Account>, Void> {
 
