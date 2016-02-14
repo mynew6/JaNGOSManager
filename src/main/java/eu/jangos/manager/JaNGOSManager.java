@@ -25,6 +25,7 @@ import eu.jangos.manager.controller.exception.LoginException;
 import eu.jangos.manager.gui.dialog.DialogAbout;
 import eu.jangos.manager.gui.frame.FrameManageAccount;
 import eu.jangos.manager.gui.frame.FrameManageRealm;
+import eu.jangos.manager.gui.frame.FrameAuthenticationParameters;
 import eu.jangos.manager.model.Account;
 import eu.jangos.manager.utils.Utils;
 import java.beans.PropertyVetoException;
@@ -78,6 +79,7 @@ public class JaNGOSManager extends JFrame {
         ;
         fManageRealm = new FrameManageRealm(this.rs, this.rts, this.ts);
         ;
+        fAuthenticationParameters = new FrameAuthenticationParameters(this.ps);
         jMenuBar = new javax.swing.JMenuBar();
         jMenuFile = new javax.swing.JMenu();
         jMenuDisconnect = new javax.swing.JMenuItem();
@@ -142,6 +144,15 @@ public class JaNGOSManager extends JFrame {
         }
         fManageRealm.getAccessibleContext().setAccessibleParent(this);
 
+        fAuthenticationParameters.setVisible(false);
+        jDesktopMainPane.add(fAuthenticationParameters);
+        fAuthenticationParameters.setBounds(50, 110, 576, 372);
+        try {
+            fAuthenticationParameters.setMaximum(true);
+        } catch (java.beans.PropertyVetoException e1) {
+            e1.printStackTrace();
+        }
+
         getContentPane().add(jDesktopMainPane, java.awt.BorderLayout.CENTER);
 
         jMenuFile.setText("File");
@@ -183,6 +194,11 @@ public class JaNGOSManager extends JFrame {
         jMenuAccount.add(jMenuManageRealms);
 
         jMenuManageParameters.setText("Parameters");
+        jMenuManageParameters.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jMenuManageParametersMouseReleased(evt);
+            }
+        });
         jMenuAccount.add(jMenuManageParameters);
 
         jMenuBar.add(jMenuAccount);
@@ -292,6 +308,16 @@ public class JaNGOSManager extends JFrame {
         }
     }//GEN-LAST:event_jMenuManageRealmsMouseReleased
 
+    private void jMenuManageParametersMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuManageParametersMouseReleased
+        fAuthenticationParameters.setVisible(true);
+        fAuthenticationParameters.toFront();
+        try {
+            fAuthenticationParameters.setSelected(true);
+        } catch (PropertyVetoException ex) {
+            java.util.logging.Logger.getLogger(JaNGOSManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jMenuManageParametersMouseReleased
+
     private void showError(String title, String message) {
         JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
     }
@@ -340,6 +366,7 @@ public class JaNGOSManager extends JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private eu.jangos.manager.gui.dialog.DialogLogin dialogLogin;
+    private eu.jangos.manager.gui.frame.FrameAuthenticationParameters fAuthenticationParameters;
     private eu.jangos.manager.gui.frame.FrameManageAccount fManageAccount;
     private eu.jangos.manager.gui.frame.FrameManageRealm fManageRealm;
     private javax.swing.JDesktopPane jDesktopMainPane;

@@ -102,8 +102,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         // We set a default duration
         this.dialogBan.setDuration(DEFAULT_BAN_DURATION);
         this.dialogBan.setCode(JOptionPane.CANCEL_OPTION);
-
-        // Sort this table by name per default.        
+        
         this.setFrameIcon(Utils.createImageIcon(ICON_IMAGE, getClass()));
 
         this.worker = new SwingWorkerAccount();

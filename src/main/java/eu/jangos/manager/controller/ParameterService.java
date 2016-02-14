@@ -15,7 +15,6 @@ package eu.jangos.manager.controller;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import eu.jangos.manager.hibernate.HibernateUtil;
 import eu.jangos.manager.model.Parameter1;
 import org.hibernate.HibernateException;
@@ -25,34 +24,91 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * ParameterService is an abstraction layer providing access to Parameters stored in the database.
+ * ParameterService is an abstraction layer providing access to Parameters
+ * stored in the database.
+ *
  * @author Warkdev
  * @version v0.1 BETA
  * @since 12-02-2016
  */
 public class ParameterService {
-    private static final Logger logger = LoggerFactory.getLogger(ParameterService.class);        
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(ParameterService.class);
+
     /**
-     * Returns the parameter corresponding to the asked key.
-     * @param key The key to retrieve from the database.
-     * @return The parameter corresponding to the parameter key in a String format or null if the key is empty/not found.
+     * Returns the parameter object corresponding to the asked key.
+     * @param key The key to be found in the database.
+     * @return The corresponding parameter. Null if there is no such parameter key into the database.
      */
-    public String getParameter(String key) {
-        if(key == null || key.isEmpty()){
+    public Parameter1 getParameterObject(String key) {
+        if (key == null || key.isEmpty()) {
             logger.debug("Key parameter is empty, returning null.");
             return null;
         }
-                
+
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Parameter1 parameter = (Parameter1) session.createCriteria(Parameter1.class).add(Restrictions.eq("param", key)).uniqueResult();
-            
-            if(parameter == null)
+
+            if (parameter == null) {
                 return null;
-            
-            return parameter.getVal();            
+            }
+
+            return parameter;
         } catch (HibernateException he) {
             return null;
-        }                
-    }    
+        }
+    }
+    
+    /**
+     * Returns the parameter corresponding to the asked key.
+     *
+     * @param key The key to retrieve from the database.
+     * @return The parameter corresponding to the parameter key in a String
+     * format or null if the key is empty/not found.
+     */
+    public String getParameter(String key) {
+        if (key == null || key.isEmpty()) {
+            logger.debug("Key parameter is empty, returning null.");
+            return null;
+        }
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Parameter1 parameter = (Parameter1) session.createCriteria(Parameter1.class).add(Restrictions.eq("param", key)).uniqueResult();
+
+            if (parameter == null) {
+                return null;
+            }
+
+            return parameter.getVal();
+        } catch (HibernateException he) {
+            return null;
+        }
+    }
+
+    /**
+     * Persist the parameter provided in parameter into the database.
+     *
+     * @param parameter The parameter to save into the database.
+     * @return The persisted parameter.
+     */
+    public Parameter1 save(Parameter1 parameter) {
+        if (parameter == null) {
+            logger.error("Parameter to save is null.");
+            return null;
+        }
+
+        Parameter1 p = null;
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            session.beginTransaction();
+            p = (Parameter1) session.merge(parameter);
+            session.flush();
+            session.getTransaction().commit();
+            logger.info("Parameter " + parameter.getParam() + " saved.");
+        } catch (HibernateException he) {
+            logger.error("There was an issue while performing the save action on " + parameter.getParam());
+        }
+
+        return p;
+    }
 }

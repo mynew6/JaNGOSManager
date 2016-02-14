@@ -3,6 +3,7 @@
 
 # Created by .ignore support plugin (hsz.mobi)
 target/
+lib/
 
 # Windows image file caches
 Thumbs.db

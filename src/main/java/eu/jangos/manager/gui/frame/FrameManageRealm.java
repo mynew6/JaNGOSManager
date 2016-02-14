@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 public class FrameManageRealm extends javax.swing.JInternalFrame {
 
     private static final Logger logger = LoggerFactory.getLogger(FrameManageRealm.class);
-    private static final String ICON_IMAGE = "/images/account.png";
+    private static final String ICON_IMAGE = "/images/realm.png";
 
     private final RealmService rs;
     private final RealmTypeService rts;
