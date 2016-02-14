@@ -179,8 +179,23 @@ public class Realm  implements java.io.Serializable {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 37 * hash + Objects.hashCode(this.id);
+        int hash = 5;
+        hash = 67 * hash + Objects.hashCode(this.id);
+        hash = 67 * hash + Objects.hashCode(this.realmtimezone);
+        hash = 67 * hash + Objects.hashCode(this.realmtype);
+        hash = 67 * hash + Objects.hashCode(this.name);
+        hash = 67 * hash + Objects.hashCode(this.address);
+        hash = 67 * hash + this.port;
+        hash = 67 * hash + Float.floatToIntBits(this.population);
+        hash = 67 * hash + this.maxPlayers;
+        hash = 67 * hash + this.countPlayers;
+        hash = 67 * hash + (this.invalid ? 1 : 0);
+        hash = 67 * hash + (this.offline ? 1 : 0);
+        hash = 67 * hash + (this.showversion ? 1 : 0);
+        hash = 67 * hash + (this.newplayers ? 1 : 0);
+        hash = 67 * hash + (this.recommended ? 1 : 0);
+        hash = 67 * hash + Objects.hashCode(this.accounts);
+        hash = 67 * hash + Objects.hashCode(this.realmAccounts);
         return hash;
     }
 
@@ -196,8 +211,13 @@ public class Realm  implements java.io.Serializable {
         if (!Objects.equals(this.id, other.id)) {
             return false;
         }
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
         return true;
     }
+
+
 
 }
 

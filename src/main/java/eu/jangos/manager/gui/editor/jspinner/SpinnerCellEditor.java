@@ -18,6 +18,8 @@ package eu.jangos.manager.gui.editor.jspinner;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.List;
 import javax.swing.AbstractCellEditor;
 import javax.swing.JComboBox;
@@ -33,7 +35,7 @@ import javax.swing.table.TableCellEditor;
  * @since 11-02-2016
  */
 public class SpinnerCellEditor extends AbstractCellEditor 
-        implements TableCellEditor, ActionListener {
+        implements TableCellEditor, ActionListener, FocusListener{
 
     private JSpinner spinner;    
 
@@ -56,5 +58,15 @@ public class SpinnerCellEditor extends AbstractCellEditor
     @Override
     public void actionPerformed(ActionEvent e) {
         // No interest.
+    }
+
+    @Override
+    public void focusGained(FocusEvent e) {
+        return;
+    }
+
+    @Override
+    public void focusLost(FocusEvent e) {
+        this.stopCellEditing();
     }
 }

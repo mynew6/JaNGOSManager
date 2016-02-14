@@ -211,8 +211,27 @@ public class Account  implements java.io.Serializable {
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 11 * hash + Objects.hashCode(this.id);
+        int hash = 7;
+        hash = 17 * hash + Objects.hashCode(this.id);
+        hash = 17 * hash + Objects.hashCode(this.locale);
+        hash = 17 * hash + Objects.hashCode(this.realm);
+        hash = 17 * hash + Objects.hashCode(this.name);
+        hash = 17 * hash + Objects.hashCode(this.hashPass);
+        hash = 17 * hash + Objects.hashCode(this.sessionkey);
+        hash = 17 * hash + Objects.hashCode(this.verifier);
+        hash = 17 * hash + Objects.hashCode(this.salt);
+        hash = 17 * hash + Objects.hashCode(this.email);
+        hash = 17 * hash + Objects.hashCode(this.creation);
+        hash = 17 * hash + Objects.hashCode(this.lastIp);
+        hash = 17 * hash + this.failedattempt;
+        hash = 17 * hash + (this.locked ? 1 : 0);
+        hash = 17 * hash + Objects.hashCode(this.lastlogin);
+        hash = 17 * hash + (this.online ? 1 : 0);
+        hash = 17 * hash + Objects.hashCode(this.bannedaccountsForFkBannedby);
+        hash = 17 * hash + Objects.hashCode(this.roleses);
+        hash = 17 * hash + Objects.hashCode(this.bannedips);
+        hash = 17 * hash + Objects.hashCode(this.bannedaccountsForFkBannedaccount);
+        hash = 17 * hash + Objects.hashCode(this.realmAccounts);
         return hash;
     }
 
@@ -225,11 +244,16 @@ public class Account  implements java.io.Serializable {
             return false;
         }
         final Account other = (Account) obj;
-        if (this.id != other.id) {
+        if (!Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        if (!Objects.equals(this.name, other.name)) {
             return false;
         }
         return true;
     }
+
+
 
 }
 

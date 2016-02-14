@@ -34,7 +34,7 @@ public class JTableRealmModel extends AbstractTableModel {
 
     private final String[] COLUMN_NAME = {"Name", "Address", "Port", "Type", "Timezone", "Population", "Max. Players", "Total Players", "Invalid", "Offline", "Show version", "New Players", "Recommended"};
     private final int COLUMN_COUNT = COLUMN_NAME.length;
-    private final Class[] COLUMN_CLASS = {String.class, String.class, Integer.class, Realmtype.class, Realmtimezone.class, Float.class, Integer.class, Integer.class, Boolean.class, Boolean.class, Boolean.class, Boolean.class, Boolean.class};
+    private final Class[] COLUMN_CLASS = {String.class, String.class, Integer.class, Realmtype.class, Realmtimezone.class, String.class, Integer.class, Integer.class, Boolean.class, Boolean.class, Boolean.class, Boolean.class, Boolean.class};
 
     /**
      * listRealms is the list of realms for this table model.
@@ -43,10 +43,13 @@ public class JTableRealmModel extends AbstractTableModel {
     private List<Realm> listEditedRealms;
     private final List<Realm> listAddedRealms;
 
+    private double average;
+    
     public JTableRealmModel() {
         this.listRealms = new ArrayList<>();
         this.listEditedRealms = new ArrayList<>();
         this.listAddedRealms = new ArrayList<>();
+        this.average = 0;
     }
 
     @Override
@@ -80,8 +83,30 @@ public class JTableRealmModel extends AbstractTableModel {
                 return this.listRealms.get(rowIndex).getRealmtype();
             case "Timezone":
                 return this.listRealms.get(rowIndex).getRealmtimezone();
-            case "Population":
-                return this.listRealms.get(rowIndex).getPopulation();
+            case "Population":                
+                double low = this.average - Math.floor(average * 5f) / 10f;
+                double high = this.average + Math.floor(average * 5f) / 10f;
+                double population = Math.floor(this.listRealms.get(rowIndex).getPopulation() * 10f) / 10f;
+                      
+                // This is how the Blizzard clients handle it:
+                // population = value sent by the server (count players / maximum players).
+                // average = the average of all the "population" fields in the database.
+                // low limit = average - floor(average / 2)
+                // high limit = average + floor(average / 2)
+                // All the population lower or equals to low are "LOW"
+                // All the population between low and high limits are "MEDIUM"
+                // All the population higher or equals to high are "HIGH"
+                if(population <= low)
+                {
+                    return "LOW";
+                }
+            
+                if(low <= population && population <= high)
+                {
+                    return "MEDIUM";
+                }
+                
+                return "HIGH";
             case "Max. Players":
                 return this.listRealms.get(rowIndex).getMaxPlayers();
             case "Total Players":
@@ -113,7 +138,7 @@ public class JTableRealmModel extends AbstractTableModel {
 
         switch (COLUMN_NAME[columnIndex]) {
             case "Name":
-                String name = ((String) object).toUpperCase();
+                String name = ((String) object);
                 if (!this.listRealms.get(rowIndex).getName().equals(name)) {
                     this.listRealms.get(rowIndex).setName(name);
                     if (!this.listEditedRealms.contains(this.listRealms.get(rowIndex))) {
@@ -137,18 +162,18 @@ public class JTableRealmModel extends AbstractTableModel {
                     }
                 }
                 break;
-            case "Type":
-                // Fix me, check previous input != null
-                if (!this.listRealms.get(rowIndex).getRealmtype().equals((Realmtype) object)) {
+            case "Type":                
+                if ((this.listRealms.get(rowIndex).getRealmtype()==null && object != null)
+                        || !this.listRealms.get(rowIndex).getRealmtype().equals((Realmtype) object)) {
                     this.listRealms.get(rowIndex).setRealmtype((Realmtype) object);
                     if (!this.listEditedRealms.contains(this.listRealms.get(rowIndex))) {
                         this.listEditedRealms.add(this.listRealms.get(rowIndex));
                     }
                 }
                 break;
-            case "Timezone":
-                // Fix me, check previous input != null
-                if (!this.listRealms.get(rowIndex).getRealmtimezone().equals((Realmtimezone) object)) {
+            case "Timezone":                
+                if ((this.listRealms.get(rowIndex).getRealmtimezone()==null && object != null)
+                        || !this.listRealms.get(rowIndex).getRealmtimezone().equals((Realmtimezone) object)) {
                     this.listRealms.get(rowIndex).setRealmtimezone((Realmtimezone) object);
                     if (!this.listEditedRealms.contains(this.listRealms.get(rowIndex))) {
                         this.listEditedRealms.add(this.listRealms.get(rowIndex));
@@ -412,4 +437,19 @@ public class JTableRealmModel extends AbstractTableModel {
     public void removeEditedAccount(Realm realm) {
         this.listEditedRealms.remove(realm);
     }
+
+    public double getAverage() {
+        return average;
+    }
+
+    public void setAverage(double average) {
+        // We round or floor depending on the comma. This is because MySQL database can actually calculate
+        // that 1 / 2 = 0.49 or 0.51.
+        if((average * 10f) % 1 >= 0.5)
+        {
+            this.average = Math.round(average * 10f) / 10f;
+        } else {
+            this.average = Math.floor(average * 10f) / 10f;
+        }        
+    }        
 }

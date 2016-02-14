@@ -64,29 +64,27 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
     private final LocaleService ls;
     private final ParameterService ps;
     private Account manager;
-        
-    //private final JFrame parent;
 
+    //private final JFrame parent;
     private SwingWorkerAccount worker;
 
     private BooleanType locked;
     private BooleanType banned;
     private BooleanType online;
     private DateType login;
-    private DateType creation;    
-    
+    private DateType creation;
+
     public FrameManageAccount() {
         this.as = null;
         this.rs = null;
         this.ls = null;
         this.ps = null;
         initComponents();
-    }            
-    
+    }
+
     /**
      * Creates new form FrameManageAccount
-     *     
-     * @param administrator
+     *
      * @param as
      * @param rs
      * @param ps
@@ -98,36 +96,36 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         this.rs = rs;
         this.ls = ls;
         this.ps = ps;
-        
-        initComponents();                    
-        
+
+        initComponents();
+
         // We set a default duration
         this.dialogBan.setDuration(DEFAULT_BAN_DURATION);
         this.dialogBan.setCode(JOptionPane.CANCEL_OPTION);
 
         // Sort this table by name per default.        
-        this.setFrameIcon(Utils.createImageIcon(ICON_IMAGE, getClass()));        
+        this.setFrameIcon(Utils.createImageIcon(ICON_IMAGE, getClass()));
 
-        this.worker = new SwingWorkerAccount();        
-        
+        this.worker = new SwingWorkerAccount();
+
         this.jTableAccounts.setDefaultRenderer(Locale.class, new LocaleCellRenderer());
         this.jTableAccounts.setDefaultEditor(Locale.class, new LocaleCellEditor(this.ls.getAllLocale()));
-        
+
         this.jTableAccounts.setRowHeight(25);
 
         List<Locale> listLocales = this.ls.getAllLocale();
         List<Realm> listRealms = this.rs.getAllRealms();
-        
+
         // We add dummies values for editing purposes.
         listLocales.add(0, new Locale(-1, "ALL", "ALL"));
         listRealms.add(0, new Realm(null, null, "ALL", null, 0, 0, 0, 0, false, false, false, false, false));
-        
+
         this.jCBLocale.setModel(new DefaultComboBoxModel(listLocales.toArray()));
-        this.jCBLocale.setRenderer(new ListLocaleCellRenderer());        
-        
+        this.jCBLocale.setRenderer(new ListLocaleCellRenderer());
+
         this.jCBRealm.setModel(new DefaultComboBoxModel(listRealms.toArray()));
         this.jCBRealm.setRenderer(new ListRealmCellRenderer());
-        
+
         this.locked = BooleanType.BOTH;
         this.banned = BooleanType.BOTH;
         this.online = BooleanType.BOTH;
@@ -606,14 +604,14 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         // Update Realm combobox.
         Realm selected = (Realm) this.jCBRealm.getSelectedItem();
         List<Realm> listRealms = this.rs.getAllRealms();
-        listRealms.add(0, new Realm(null, null, "ALL", null, 0, 0, 0, 0, false, false, false, false, false));                        
+        listRealms.add(0, new Realm(null, null, "ALL", null, 0, 0, 0, 0, false, false, false, false, false));
         this.jCBRealm.setModel(new DefaultComboBoxModel(listRealms.toArray()));
         this.jCBRealm.setRenderer(new ListRealmCellRenderer());
         this.jCBRealm.setSelectedItem(selected);
-        
+
         // Update of the cell renderer on search.
         this.jTableAccounts.setDefaultRenderer(Realm.class, new RealmCellRenderer());
-        
+
         // Add dummy <none> value, replaced by null in business layer.
         List<Realm> listRealmTable = this.rs.getAllRealms();
         Realm r = new Realm(null, null, "<none>", null, 0, 0, 0, 0, false, false, false, false, false);
@@ -809,51 +807,53 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         saveAll();
     }//GEN-LAST:event_jButtonSaveActionPerformed
 
-    private void saveAll() {        
-        if(this.jTableAccountsModel.getListEditedAccounts().isEmpty())
-        {
+    private void saveAll() {
+        if (this.jTableAccountsModel.getListEditedAccounts().isEmpty()) {
             return;
         }
-        
-        if(askConfirmation("Save", "All the edited data will be lost, are you sure ?") == JOptionPane.CANCEL_OPTION)
-        {
+
+        if (askConfirmation("Save", "All the edited data will be lost, are you sure ?") == JOptionPane.CANCEL_OPTION) {
             return;
         }
-                       
-        
+
+        if (this.jTableAccounts.getCellEditor() != null) {
+            this.jTableAccounts.getCellEditor().stopCellEditing();
+        }
         // A list to remember all error accounts.
         List<Account> listErrorAccounts = new ArrayList<>();
-        for(Account a : this.jTableAccountsModel.getListEditedAccounts())
-        {           
+        for (Account a : this.jTableAccountsModel.getListEditedAccounts()) {
             boolean add = this.jTableAccountsModel.isNewRow(a);
-            if(this.as.isValidAccount(a, add))
-            {                
-                this.as.save(a);                
-                
+            if (this.as.isValidAccount(a, add)) {
+                Account account = this.as.save(a);
+
+                if (account == null) {
+                    showError("Error", "The system encountered an error while registering the account information, please check your database.");
+                    continue;
+                }
+
                 // If this is a new account, it should be replicated back in the model for future update.
-                if(add)
-                {
-                    this.jTableAccountsModel.removeAddedAccount(a);                      
-                    this.jTableAccountsModel.mergeRow(this.as.getAccount(a.getName()));                                                                              
+                if (add) {
+                    this.jTableAccountsModel.removeAddedAccount(a);
+                    this.jTableAccountsModel.mergeRow(this.as.getAccount(account.getId()));
                 }
             } else {
                 listErrorAccounts.add(a);
-                showError("Error", "The system encountered an error while validating the account "+a.getName()+", please verify inputs.");
+                showError("Error", "The system encountered an error while validating the account " + a.getName() + ", please verify inputs.");
             }
-        }        
+        }
         // Finally, we restore the list of edited accounts with the error accounts.
         this.jTableAccountsModel.setListEditedAccounts(listErrorAccounts);
     }
-    
-    private void createAccount() {        
+
+    private void createAccount() {
         this.jTableAccountsModel.addRow(
                 new Account(
-                        this.ls.getLocaleForString(this.ps.getParameter(ParameterConstants.KEY_DEFAULT_LOCALE)), null, "<Enter a name>", "<Enter a password>", 
-                        null, null, null, "<Give valid email>", new Date(), 
-                        "0.0.0.0", 0, false, new Date(), false, 
-                        null, null, null, null, null));                        
+                        this.ls.getLocaleForString(this.ps.getParameter(ParameterConstants.KEY_DEFAULT_LOCALE)), null, "<Enter a name>", "<Enter a password>",
+                        null, null, null, "<Give valid email>", new Date(),
+                        "0.0.0.0", 0, false, new Date(), false,
+                        null, null, null, null, null));
     }
-    
+
     private void deleteAccount() {
         int[] rows = this.jTableAccounts.getSelectedRows();
         if (rows.length == 0) {
@@ -864,13 +864,11 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
 
         for (int i = (rows.length - 1); i >= 0; i--) {
             try {
-                if(this.jTableAccountsModel.getAccount(rows[i]).equals(this.manager))
-                {
-                    showError("Oups","We are sorry but you can't delete your own account");
+                if (this.jTableAccountsModel.getAccount(rows[i]).equals(this.manager)) {
+                    showError("Oups", "We are sorry but you can't delete your own account");
                     continue;
                 }
-                if(!this.jTableAccountsModel.isNewRow(this.jTableAccountsModel.getAccount(rows[i])))
-                {                    
+                if (!this.jTableAccountsModel.isNewRow(this.jTableAccountsModel.getAccount(rows[i]))) {
                     this.as.delete(this.jTableAccountsModel.getAccount(rows[i]).getId());
                 }
                 this.jTableAccountsModel.removeRow(rows[i]);
@@ -890,9 +888,8 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
 
         for (int i = (rows.length - 1); i >= 0; i--) {
             try {
-                if(this.jTableAccountsModel.getAccount(rows[i]).equals(this.manager))
-                {
-                    showError("Oups","We are sorry but you can't lock your own account");
+                if (this.jTableAccountsModel.getAccount(rows[i]).equals(this.manager)) {
+                    showError("Oups", "We are sorry but you can't lock your own account");
                     continue;
                 }
                 this.as.lockAccount(this.jTableAccountsModel.getAccount(rows[i]).getId());
@@ -923,19 +920,18 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         }
     }
 
-    private void banAccount() {                
+    private void banAccount() {
         int[] rows = this.jTableAccounts.getSelectedRows();
         if (rows.length == 0) {
             return;
         }
 
         Arrays.sort(rows);
-        
+
         for (int i = (rows.length - 1); i >= 0; i--) {
             try {
-                if(this.jTableAccountsModel.getAccount(rows[i]).equals(this.manager))
-                {
-                    showError("Oups","We are sorry but you can't ban yourself");
+                if (this.jTableAccountsModel.getAccount(rows[i]).equals(this.manager)) {
+                    showError("Oups", "We are sorry but you can't ban yourself");
                     continue;
                 }
                 askForBanReason(this.jTableAccountsModel.getAccount(rows[i]).getName());
@@ -970,14 +966,14 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
     }
 
     private void askForBanReason(String name) {
-        this.dialogBan.setTitle("Please provide ban informations for: "+name);
+        this.dialogBan.setTitle("Please provide ban informations for: " + name);
         this.dialogBan.setVisible(true);
     }
 
     private int askConfirmation(String title, String message) {
-        return JOptionPane.showConfirmDialog(this,message, title, JOptionPane.OK_CANCEL_OPTION);
+        return JOptionPane.showConfirmDialog(this, message, title, JOptionPane.OK_CANCEL_OPTION);
     }
-    
+
     private void showWarning(String title, String message) {
         JOptionPane.showMessageDialog(this, message, title, JOptionPane.WARNING_MESSAGE);
     }
@@ -992,8 +988,8 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
 
     public void setManager(Account manager) {
         this.manager = manager;
-    }    
-    
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private eu.jangos.manager.gui.dialog.DialogBan dialogBan;
     private javax.swing.JButton jButtonBan;
@@ -1057,9 +1053,9 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         @Override
         protected List<Account> doInBackground() throws Exception {
             return as.getAllAccounts(
-                    this.search, creation, jDatePickerCreationFrom.getDate(), 
-                    jDatePickerCreationTo.getDate(), login, jDatePickerLoginFrom.getDate(), 
-                    jDatePickerLoginTo.getDate(), locked, banned, online, 
+                    this.search, creation, jDatePickerCreationFrom.getDate(),
+                    jDatePickerCreationTo.getDate(), login, jDatePickerLoginFrom.getDate(),
+                    jDatePickerLoginTo.getDate(), locked, banned, online,
                     (Locale) jCBLocale.getSelectedItem(),
                     (Realm) jCBRealm.getSelectedItem());
         }

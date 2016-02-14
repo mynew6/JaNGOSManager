@@ -27,6 +27,8 @@ import eu.jangos.manager.gui.frame.FrameManageAccount;
 import eu.jangos.manager.gui.frame.FrameManageRealm;
 import eu.jangos.manager.model.Account;
 import eu.jangos.manager.utils.Utils;
+import java.beans.PropertyVetoException;
+import java.util.logging.Level;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
@@ -47,7 +49,7 @@ public class JaNGOSManager extends JFrame {
     private static final ParameterService ps = new ParameterService();
     private static final RealmTypeService rts = new RealmTypeService();
     private static final TimezoneService ts = new TimezoneService();
-            
+
     // This variable represent the logged in account.
     private static Account account;
 
@@ -69,7 +71,6 @@ public class JaNGOSManager extends JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         dialogLogin = new eu.jangos.manager.gui.dialog.DialogLogin();
         jDesktopMainPane = new javax.swing.JDesktopPane();
@@ -108,43 +109,38 @@ public class JaNGOSManager extends JFrame {
             }
         });
 
+        jDesktopMainPane.setDragMode(javax.swing.JDesktopPane.OUTLINE_DRAG_MODE);
         jDesktopMainPane.setMinimumSize(new java.awt.Dimension(1157, 725));
         jDesktopMainPane.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
                 jDesktopMainPaneComponentResized(evt);
             }
         });
-        java.awt.GridBagLayout jDesktopMainPaneLayout = new java.awt.GridBagLayout();
-        jDesktopMainPaneLayout.columnWidths = new int[] {1};
-        jDesktopMainPaneLayout.rowHeights = new int[] {1};
-        jDesktopMainPaneLayout.columnWeights = new double[] {1.0};
-        jDesktopMainPaneLayout.rowWeights = new double[] {1.0};
-        jDesktopMainPane.setLayout(jDesktopMainPaneLayout);
 
         fManageAccount.setVisible(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.ipadx = -1188;
-        gridBagConstraints.ipady = -1034;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        jDesktopMainPane.add(fManageAccount, gridBagConstraints);
+        jDesktopMainPane.add(fManageAccount);
+        fManageAccount.setBounds(0, 0, 1188, 1009);
         try {
             fManageAccount.setMaximum(true);
         } catch (java.beans.PropertyVetoException e1) {
             e1.printStackTrace();
         }
+        fManageAccount.getAccessibleContext().setAccessibleParent(this);
 
+        fManageRealm.setClosable(true);
+        fManageRealm.setIconifiable(true);
+        fManageRealm.setMaximizable(true);
+        fManageRealm.setMinimumSize(new java.awt.Dimension(720, 480));
+        fManageRealm.setPreferredSize(new java.awt.Dimension(720, 480));
         fManageRealm.setVisible(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        jDesktopMainPane.add(fManageRealm, gridBagConstraints);
+        jDesktopMainPane.add(fManageRealm);
+        fManageRealm.setBounds(0, 0, 720, 480);
         try {
             fManageRealm.setMaximum(true);
         } catch (java.beans.PropertyVetoException e1) {
             e1.printStackTrace();
         }
+        fManageRealm.getAccessibleContext().setAccessibleParent(this);
 
         getContentPane().add(jDesktopMainPane, java.awt.BorderLayout.CENTER);
 
@@ -237,6 +233,12 @@ public class JaNGOSManager extends JFrame {
 
     private void jMenuManageAccountsMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuManageAccountsMouseReleased
         fManageAccount.setVisible(true);
+        fManageAccount.toFront();
+        try {
+            fManageAccount.setSelected(true);
+        } catch (PropertyVetoException ex) {
+            java.util.logging.Logger.getLogger(JaNGOSManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jMenuManageAccountsMouseReleased
 
     private void jDesktopMainPaneComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_jDesktopMainPaneComponentResized
@@ -282,6 +284,12 @@ public class JaNGOSManager extends JFrame {
 
     private void jMenuManageRealmsMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuManageRealmsMouseReleased
         fManageRealm.setVisible(true);
+        fManageRealm.toFront();
+        try {
+            fManageRealm.setSelected(true);
+        } catch (PropertyVetoException ex) {
+            java.util.logging.Logger.getLogger(JaNGOSManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jMenuManageRealmsMouseReleased
 
     private void showError(String title, String message) {

@@ -20,6 +20,7 @@ import eu.jangos.manager.controller.RealmTypeService;
 import eu.jangos.manager.controller.TimezoneService;
 import eu.jangos.manager.gui.editor.cb.RealmTimeZoneCellEditor;
 import eu.jangos.manager.gui.editor.cb.RealmTypeCellEditor;
+import eu.jangos.manager.gui.editor.jspinner.SpinnerCellEditor;
 import eu.jangos.manager.gui.renderer.cb.ListRealmtypeCellRenderer;
 import eu.jangos.manager.gui.renderer.cb.ListTimezoneCellRenderer;
 import eu.jangos.manager.gui.renderer.cb.RealmTimeZoneRenderer;
@@ -50,19 +51,25 @@ import org.slf4j.LoggerFactory;
 public class FrameManageRealm extends javax.swing.JInternalFrame {
 
     private static final Logger logger = LoggerFactory.getLogger(FrameManageRealm.class);
-    private static final String ICON_IMAGE = "/images/account.png";    
-    
+    private static final String ICON_IMAGE = "/images/account.png";
+
     private final RealmService rs;
     private final RealmTypeService rts;
-    private final TimezoneService ts;    
+    private final TimezoneService ts;
     private Account manager;
-        
+
     //private final JFrame parent;
-    private SwingWorkerRealm worker;          
-    
+    private SwingWorkerRealm worker;
+
+    public FrameManageRealm() {
+        this.rs = null;
+        this.rts = null;
+        this.ts = null;
+    }
+
     /**
      * Creates new form FrameManageAccount
-     *               
+     *
      * @param rs
      * @param rts
      * @param ts
@@ -72,34 +79,36 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
         this.rs = rs;
         this.rts = rts;
         this.ts = ts;
-        
-        initComponents();                                    
+
+        initComponents();
 
         // Sort this table by name per default.        
-        this.setFrameIcon(Utils.createImageIcon(ICON_IMAGE, getClass()));        
+        this.setFrameIcon(Utils.createImageIcon(ICON_IMAGE, getClass()));
 
-        this.worker = new SwingWorkerRealm();        
-        
+        this.worker = new SwingWorkerRealm();
+
         this.jTableRealms.setDefaultRenderer(Realmtype.class, new RealmTypeCellRenderer());
         this.jTableRealms.setDefaultRenderer(Realmtimezone.class, new RealmTimeZoneRenderer());
-                
+
         this.jTableRealms.setDefaultEditor(Realmtype.class, new RealmTypeCellEditor(this.rts.getAllRealmType()));
         this.jTableRealms.setDefaultEditor(Realmtimezone.class, new RealmTimeZoneCellEditor(this.ts.getAllRealmTimezone()));
-        
+
+        this.jTableRealms.setDefaultEditor(Integer.class, new SpinnerCellEditor(65535));
+
         this.jTableRealms.setRowHeight(25);
 
         List<Realmtimezone> listTimezones = this.ts.getAllRealmTimezone();
         List<Realmtype> listTypes = this.rts.getAllRealmType();
-        
+
         // We add dummies values for editing purposes.
         listTimezones.add(0, new Realmtimezone(-1, "ALL", null));
         listTypes.add(0, new Realmtype(-1, "ALL", null));
-        
+
         this.jCBTimezone.setModel(new DefaultComboBoxModel(listTimezones.toArray()));
-        this.jCBTimezone.setRenderer(new ListTimezoneCellRenderer());        
-        
+        this.jCBTimezone.setRenderer(new ListTimezoneCellRenderer());
+
         this.jCBType.setModel(new DefaultComboBoxModel(listTypes.toArray()));
-        this.jCBType.setRenderer(new ListRealmtypeCellRenderer());                
+        this.jCBType.setRenderer(new ListRealmtypeCellRenderer());
     }
 
     /**
@@ -128,6 +137,7 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
         jButtonReset = new javax.swing.JButton();
         jButtonSearch = new javax.swing.JButton();
         jPanelControls = new javax.swing.JPanel();
+        jButtonCalcPop = new javax.swing.JButton();
         jButtonDelete = new javax.swing.JButton();
         jButtonCreate = new javax.swing.JButton();
         jButtonSave = new javax.swing.JButton();
@@ -139,6 +149,7 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
         setResizable(true);
         setTitle("Realm Management");
         setMinimumSize(new java.awt.Dimension(720, 480));
+        setPreferredSize(new java.awt.Dimension(720, 480));
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         jTableRealms.setModel(jTableRealmsModel);
@@ -183,7 +194,7 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
         jPanelGeneric.add(jTFName, gridBagConstraints);
 
         jCBMatch.setText("Match");
-        jCBMatch.setToolTipText("Retrieve only account exactly matching the name");
+        jCBMatch.setToolTipText("Retrieve only realm exactly matching the name");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
@@ -258,6 +269,14 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
 
         jPanelControls.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Controls", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
 
+        jButtonCalcPop.setText("Calculate Population");
+        jButtonCalcPop.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jButtonCalcPopMouseReleased(evt);
+            }
+        });
+        jPanelControls.add(jButtonCalcPop);
+
         jButtonDelete.setText("Delete");
         jButtonDelete.setToolTipText("Delete all the selected account");
         jButtonDelete.addActionListener(new java.awt.event.ActionListener() {
@@ -298,13 +317,15 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
         if (this.worker.getState() == StateValue.STARTED) {
             this.worker.cancel(true);
         }
-        this.worker = new SwingWorkerRealm();
-
+        this.worker = new SwingWorkerRealm();        
+        
         // Fixme, spaces are allowed in realm name.
-        String search = this.jTFName.getText().replaceAll("[^\\dA-Za-z ]", "").replaceAll("\\s+", "+");
+        String search = this.jTFName.getText().replaceAll("[^\\dA-Za-z ]", "");
 
         this.jTableRealmsModel.erase();
 
+        this.jTableRealmsModel.setAverage(this.rs.getAveragePopulation());
+        
         this.jTFName.setText(search);
 
         if (!this.jCBMatch.isSelected()) {
@@ -313,7 +334,7 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
 
         if (search.isEmpty()) {
             return;
-        }                       
+        }
 
         try {
             worker.setSearch(search);
@@ -326,11 +347,11 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
 
     private void jButtonResetMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonResetMouseReleased
         this.jTFName.setText("");
-        
+
         this.jCBMatch.setSelected(false);
 
         this.jCBType.setSelectedIndex(0);
-        this.jCBTimezone.setSelectedIndex(0);        
+        this.jCBTimezone.setSelectedIndex(0);
     }//GEN-LAST:event_jButtonResetMouseReleased
 
     private void jButtonDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteActionPerformed
@@ -345,47 +366,68 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
         saveAll();
     }//GEN-LAST:event_jButtonSaveActionPerformed
 
-    private void saveAll() {        
-        if(this.jTableRealmsModel.getListEditedRealms().isEmpty())
-        {
-            return;
+    private void jButtonCalcPopMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonCalcPopMouseReleased
+        if (this.jTableRealms.getCellEditor() != null) {
+            this.jTableRealms.getCellEditor().stopCellEditing();
         }
         
-        if(askConfirmation("Save", "All the edited data will be lost, are you sure ?") == JOptionPane.CANCEL_OPTION)
+        for(Realm r : this.jTableRealmsModel.getListRealms())
         {
+            boolean add = this.jTableRealmsModel.isNewRow(r);
+            if(!add)
+            {
+                this.rs.calculatePopulation(r);                
+            }            
+        }
+        
+        // Finally, we refresh the screen.
+        jButtonSearchMouseReleased(evt);
+    }//GEN-LAST:event_jButtonCalcPopMouseReleased
+
+    private void saveAll() {
+        if (this.jTableRealmsModel.getListEditedRealms().isEmpty()) {
             return;
         }
-                       
-        
+
+        if (askConfirmation("Save", "All the edited data will be lost, are you sure ?") == JOptionPane.CANCEL_OPTION) {
+            return;
+        }
+
+        if (this.jTableRealms.getCellEditor() != null) {
+            this.jTableRealms.getCellEditor().stopCellEditing();
+        }
+
         // A list to remember all error accounts.
         List<Realm> listErrorRealms = new ArrayList<>();
-        for(Realm r : this.jTableRealmsModel.getListEditedRealms())
-        {           
+        for (Realm r : this.jTableRealmsModel.getListEditedRealms()) {
             boolean add = this.jTableRealmsModel.isNewRow(r);
-           /** if(this.rs.isValidRealm(r, add))
-            {                
-                this.rs.save(r);                
-                
-                // If this is a new account, it should be replicated back in the model for future update.
-                if(add)
-                {
-                    this.jTableRealmsModel.removeAddedRealm(r);                      
-                    this.jTableRealmsModel.mergeRow(this.rs.getRealm(r.getName()));                                                                              
+            if (this.rs.isValid(r)) {
+                Realm realm = this.rs.save(r);
+
+                if (realm == null) {
+                    showError("Error", "The system encountered an error while registering the realm information, please check your database.");
+                    continue;
+                }
+
+                // If this is a new realm, it should be replicated back in the model for future update.
+                if (add) {
+                    this.jTableRealmsModel.removeAddedRealm(r);
+                    this.jTableRealmsModel.mergeRow(this.rs.getRealm(realm.getId()));
                 }
             } else {
                 listErrorRealms.add(r);
-                showError("Error", "The system encountered an error while validating the realm "+r.getName()+", please verify inputs.");
-            }*/
-        }        
+                showError("Error", "The system encountered an error while validating the realm " + r.getName() + ", please verify inputs.");
+            }
+        }
         // Finally, we restore the list of edited realms with the error realms.
         this.jTableRealmsModel.setListEditedRealms(listErrorRealms);
     }
-    
-    private void createRealm() {        
+
+    private void createRealm() {
         this.jTableRealmsModel.addRow(
                 new Realm(null, null, "<Edit me>", "<Enter a valid address>", 0, 0, 1000, 0, false, false, false, false, false));
     }
-    
+
     private void deleteRealm() {
         int[] rows = this.jTableRealms.getSelectedRows();
         if (rows.length == 0) {
@@ -395,22 +437,21 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
         Arrays.sort(rows);
 
         for (int i = (rows.length - 1); i >= 0; i--) {
-            try {                
-                if(!this.jTableRealmsModel.isNewRow(this.jTableRealmsModel.getRealm(rows[i])))
-                {                    
-                    //this.rs.delete(this.jTableRealmsModel.getRealm(rows[i]).getId());
+            try {
+                if (!this.jTableRealmsModel.isNewRow(this.jTableRealmsModel.getRealm(rows[i]))) {
+                    this.rs.delete(this.jTableRealmsModel.getRealm(rows[i]).getId());
                 }
                 this.jTableRealmsModel.removeRow(rows[i]);
             } catch (IllegalArgumentException iae) {
                 showError("Oups, an error occured", iae.getMessage());
             }
         }
-    }  
+    }
 
     private int askConfirmation(String title, String message) {
-        return JOptionPane.showConfirmDialog(this,message, title, JOptionPane.OK_CANCEL_OPTION);
+        return JOptionPane.showConfirmDialog(this, message, title, JOptionPane.OK_CANCEL_OPTION);
     }
-    
+
     private void showWarning(String title, String message) {
         JOptionPane.showMessageDialog(this, message, title, JOptionPane.WARNING_MESSAGE);
     }
@@ -425,9 +466,10 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
 
     public void setManager(Account manager) {
         this.manager = manager;
-    }    
-    
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButtonCalcPop;
     private javax.swing.JButton jButtonCreate;
     private javax.swing.JButton jButtonDelete;
     private javax.swing.JButton jButtonReset;
