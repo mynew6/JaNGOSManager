@@ -206,7 +206,8 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         setIconifiable(true);
         setMaximizable(true);
         setResizable(true);
-        setTitle("Account Management");
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("eu/jangos/manager/Bundle"); // NOI18N
+        setTitle(bundle.getString("FrameManageAccount.title")); // NOI18N
         setMinimumSize(new java.awt.Dimension(720, 480));
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
@@ -227,7 +228,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints.weighty = 1.0;
         getContentPane().add(jScrollPaneTableAccounts, gridBagConstraints);
 
-        jPanelFilters.setBorder(javax.swing.BorderFactory.createTitledBorder("Filters"));
+        jPanelFilters.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("FrameManageAccount.jPanelFilters.border.title"))); // NOI18N
         jPanelFilters.setLayout(new java.awt.GridBagLayout());
 
         jPanelGeneric.setMaximumSize(new java.awt.Dimension(400, 140));
@@ -237,7 +238,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         jPanelGeneric.setLayout(new java.awt.GridBagLayout());
 
         jLabelName.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        jLabelName.setText("Name:");
+        jLabelName.setText(bundle.getString("FrameManageAccount.jLabelName.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -251,14 +252,14 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints.gridy = 0;
         jPanelGeneric.add(jTFName, gridBagConstraints);
 
-        jCBMatch.setText("Match");
-        jCBMatch.setToolTipText("Retrieve only account exactly matching the name");
+        jCBMatch.setText(bundle.getString("FrameManageAccount.jCBMatch.text")); // NOI18N
+        jCBMatch.setToolTipText(bundle.getString("FrameManageAccount.jCBMatch.toolTipText")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         jPanelGeneric.add(jCBMatch, gridBagConstraints);
 
-        jLabelLock.setText("Lock:");
+        jLabelLock.setText(bundle.getString("FrameManageAccount.jLabelLock.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -278,7 +279,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints.gridy = 1;
         jPanelGeneric.add(jCBLock, gridBagConstraints);
 
-        jLabelBan.setText("Ban:");
+        jLabelBan.setText(bundle.getString("FrameManageAccount.jLabelBan.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -298,7 +299,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints.gridy = 2;
         jPanelGeneric.add(jCBBan, gridBagConstraints);
 
-        jLabelOnline.setText("Online:");
+        jLabelOnline.setText(bundle.getString("FrameManageAccount.jLabelOnline.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
@@ -318,7 +319,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints.gridy = 3;
         jPanelGeneric.add(jCBOnline, gridBagConstraints);
 
-        jLabelLocale.setText("Locale:");
+        jLabelLocale.setText(bundle.getString("FrameManageAccount.jLabelLocale.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
@@ -334,7 +335,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints.gridy = 1;
         jPanelGeneric.add(jCBLocale, gridBagConstraints);
 
-        jLabelRealm.setText("Realm:");
+        jLabelRealm.setText(bundle.getString("FrameManageAccount.jLabelRealm.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 2;
@@ -350,7 +351,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints.gridy = 2;
         jPanelGeneric.add(jCBRealm, gridBagConstraints);
 
-        jButtonReset.setText("Reset");
+        jButtonReset.setText(bundle.getString("FrameManageAccount.jButtonReset.text")); // NOI18N
         jButtonReset.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jButtonResetMouseReleased(evt);
@@ -358,7 +359,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         });
         jPanel1.add(jButtonReset);
 
-        jButtonSearch.setText("Search");
+        jButtonSearch.setText(bundle.getString("FrameManageAccount.jButtonSearch.text")); // NOI18N
         jButtonSearch.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jButtonSearchMouseReleased(evt);
@@ -378,13 +379,13 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         jPanelFilters.add(jPanelGeneric, gridBagConstraints);
 
-        jPanelCreation.setBorder(javax.swing.BorderFactory.createTitledBorder("Creation"));
+        jPanelCreation.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("FrameManageAccount.jPanelCreation.border.title"))); // NOI18N
         jPanelCreation.setMaximumSize(new java.awt.Dimension(380, 140));
         jPanelCreation.setMinimumSize(new java.awt.Dimension(380, 140));
         jPanelCreation.setPreferredSize(new java.awt.Dimension(380, 140));
         jPanelCreation.setLayout(new java.awt.GridBagLayout());
 
-        jLabelCreationFilter.setText("Filter:");
+        jLabelCreationFilter.setText(bundle.getString("FrameManageAccount.jLabelCreationFilter.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -403,7 +404,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints.gridy = 0;
         jPanelCreation.add(jCBCreationFilter, gridBagConstraints);
 
-        jLabelCreationFrom.setText("From:");
+        jLabelCreationFrom.setText(bundle.getString("FrameManageAccount.jLabelCreationFrom.text")); // NOI18N
         jLabelCreationFrom.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -416,7 +417,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints.gridy = 1;
         jPanelCreation.add(jDatePickerCreationFrom, gridBagConstraints);
 
-        jLabelCreationTo.setText("To:");
+        jLabelCreationTo.setText(bundle.getString("FrameManageAccount.jLabelCreationTo.text")); // NOI18N
         jLabelCreationTo.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -434,13 +435,13 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints.gridy = 0;
         jPanelFilters.add(jPanelCreation, gridBagConstraints);
 
-        jPanelLogin.setBorder(javax.swing.BorderFactory.createTitledBorder("Login"));
+        jPanelLogin.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("FrameManageAccount.jPanelLogin.border.title"))); // NOI18N
         jPanelLogin.setMaximumSize(new java.awt.Dimension(380, 140));
         jPanelLogin.setMinimumSize(new java.awt.Dimension(380, 140));
         jPanelLogin.setPreferredSize(new java.awt.Dimension(380, 140));
         jPanelLogin.setLayout(new java.awt.GridBagLayout());
 
-        jLabelLoginFilter.setText("Filter:");
+        jLabelLoginFilter.setText(bundle.getString("FrameManageAccount.jLabelLoginFilter.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -459,7 +460,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints.gridy = 1;
         jPanelLogin.add(jCBLoginFilter, gridBagConstraints);
 
-        jLabelLoginFrom.setText("From:");
+        jLabelLoginFrom.setText(bundle.getString("FrameManageAccount.jLabelLoginFrom.text")); // NOI18N
         jLabelLoginFrom.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -472,7 +473,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints.gridy = 4;
         jPanelLogin.add(jDatePickerLoginFrom, gridBagConstraints);
 
-        jLabelLoginTo.setText("To:");
+        jLabelLoginTo.setText(bundle.getString("FrameManageAccount.jLabelLoginTo.text")); // NOI18N
         jLabelLoginTo.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -498,10 +499,10 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         getContentPane().add(jPanelFilters, gridBagConstraints);
 
-        jPanelActions.setBorder(javax.swing.BorderFactory.createTitledBorder("Actions"));
+        jPanelActions.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("FrameManageAccount.jPanelActions.border.title"))); // NOI18N
 
-        jButtonUnlock.setText("Unlock");
-        jButtonUnlock.setToolTipText("Unlock all the selected accounts");
+        jButtonUnlock.setText(bundle.getString("FrameManageAccount.jButtonUnlock.text")); // NOI18N
+        jButtonUnlock.setToolTipText(bundle.getString("FrameManageAccount.jButtonUnlock.toolTipText")); // NOI18N
         jButtonUnlock.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonUnlockActionPerformed(evt);
@@ -509,8 +510,8 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         });
         jPanelActions.add(jButtonUnlock);
 
-        jButtonLock.setText("Lock");
-        jButtonLock.setToolTipText("Lock all the selected accounts");
+        jButtonLock.setText(bundle.getString("FrameManageAccount.jButtonLock.text")); // NOI18N
+        jButtonLock.setToolTipText(bundle.getString("FrameManageAccount.jButtonLock.toolTipText")); // NOI18N
         jButtonLock.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonLockActionPerformed(evt);
@@ -518,8 +519,8 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         });
         jPanelActions.add(jButtonLock);
 
-        jButtonUnban.setText("Unban");
-        jButtonUnban.setToolTipText("Unban all the selected accounts");
+        jButtonUnban.setText(bundle.getString("FrameManageAccount.jButtonUnban.text")); // NOI18N
+        jButtonUnban.setToolTipText(bundle.getString("FrameManageAccount.jButtonUnban.toolTipText")); // NOI18N
         jButtonUnban.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonUnbanActionPerformed(evt);
@@ -527,8 +528,8 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         });
         jPanelActions.add(jButtonUnban);
 
-        jButtonBan.setText("Ban");
-        jButtonBan.setToolTipText("Ban all the selected accounts");
+        jButtonBan.setText(bundle.getString("FrameManageAccount.jButtonBan.text")); // NOI18N
+        jButtonBan.setToolTipText(bundle.getString("FrameManageAccount.jButtonBan.toolTipText")); // NOI18N
         jButtonBan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonBanActionPerformed(evt);
@@ -536,8 +537,8 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         });
         jPanelActions.add(jButtonBan);
 
-        jButtonDelete.setText("Delete");
-        jButtonDelete.setToolTipText("Delete all the selected account");
+        jButtonDelete.setText(bundle.getString("FrameManageAccount.jButtonDelete.text")); // NOI18N
+        jButtonDelete.setToolTipText(bundle.getString("FrameManageAccount.jButtonDelete.toolTipText")); // NOI18N
         jButtonDelete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonDeleteActionPerformed(evt);
@@ -551,10 +552,10 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(jPanelActions, gridBagConstraints);
 
-        jPanelControls.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Controls", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
+        jPanelControls.setBorder(javax.swing.BorderFactory.createTitledBorder(null, bundle.getString("FrameManageAccount.jPanelControls.border.title"), javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION)); // NOI18N
 
-        jButtonCreate.setText("Create");
-        jButtonCreate.setToolTipText("Open the window to create a new account");
+        jButtonCreate.setText(bundle.getString("FrameManageAccount.jButtonCreate.text")); // NOI18N
+        jButtonCreate.setToolTipText(bundle.getString("FrameManageAccount.jButtonCreate.toolTipText")); // NOI18N
         jButtonCreate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonCreateActionPerformed(evt);
@@ -562,8 +563,8 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         });
         jPanelControls.add(jButtonCreate);
 
-        jButtonSave.setText("Save");
-        jButtonSave.setToolTipText("Save all the changes");
+        jButtonSave.setText(bundle.getString("FrameManageAccount.jButtonSave.text")); // NOI18N
+        jButtonSave.setToolTipText(bundle.getString("FrameManageAccount.jButtonSave.toolTipText")); // NOI18N
         jButtonSave.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonSaveActionPerformed(evt);

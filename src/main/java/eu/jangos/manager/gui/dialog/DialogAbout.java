@@ -44,10 +44,11 @@ public class DialogAbout extends javax.swing.JDialog {
         jLabelAbout = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("About");
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("eu/jangos/manager/Bundle"); // NOI18N
+        setTitle(bundle.getString("DialogAbout.title")); // NOI18N
         setModal(true);
 
-        jLabelAbout.setText("<html>JaNGOS Manager is the management application for JaNGOS based servers. <br/> <br/> <br/> Author: Warkdev <br/> Version: v0.1 BETA</html>");
+        jLabelAbout.setText(bundle.getString("DialogAbout.jLabelAbout.text")); // NOI18N
         getContentPane().add(jLabelAbout, java.awt.BorderLayout.CENTER);
 
         pack();

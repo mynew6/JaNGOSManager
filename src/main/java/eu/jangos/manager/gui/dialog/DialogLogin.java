@@ -68,7 +68,8 @@ public class DialogLogin extends javax.swing.JDialog {
         jButtonCancel = new javax.swing.JButton();
         jButtonOK = new javax.swing.JButton();
 
-        setTitle("Please, login");
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("eu/jangos/manager/Bundle"); // NOI18N
+        setTitle(bundle.getString("DialogLogin.title")); // NOI18N
         setMaximumSize(new java.awt.Dimension(300, 150));
         setMinimumSize(new java.awt.Dimension(300, 150));
         setModal(true);
@@ -77,7 +78,7 @@ public class DialogLogin extends javax.swing.JDialog {
 
         jPanelLogin.setLayout(new java.awt.GridBagLayout());
 
-        jLabelAccountName.setText("Account name:");
+        jLabelAccountName.setText(bundle.getString("DialogLogin.jLabelAccountName.text")); // NOI18N
         jPanelLogin.add(jLabelAccountName, new java.awt.GridBagConstraints());
 
         jTFAccount.setMaximumSize(new java.awt.Dimension(110, 25));
@@ -90,7 +91,7 @@ public class DialogLogin extends javax.swing.JDialog {
         });
         jPanelLogin.add(jTFAccount, new java.awt.GridBagConstraints());
 
-        jLabelPassword.setText("Password:");
+        jLabelPassword.setText(bundle.getString("DialogLogin.jLabelPassword.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 1;
         jPanelLogin.add(jLabelPassword, gridBagConstraints);
@@ -113,7 +114,7 @@ public class DialogLogin extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(50, 0, 0, 0);
         jPanelLogin.add(jSeparator1, gridBagConstraints);
 
-        jButtonCancel.setText("Cancel");
+        jButtonCancel.setText(bundle.getString("DialogLogin.jButtonCancel.text")); // NOI18N
         jButtonCancel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonCancelActionPerformed(evt);
@@ -121,7 +122,7 @@ public class DialogLogin extends javax.swing.JDialog {
         });
         jPanelControls.add(jButtonCancel);
 
-        jButtonOK.setText("OK");
+        jButtonOK.setText(bundle.getString("DialogLogin.jButtonOK.text")); // NOI18N
         jButtonOK.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonOKActionPerformed(evt);

@@ -15,10 +15,13 @@
  */
 package eu.jangos.manager.gui.frame;
 
+import eu.jangos.manager.controller.LocaleService;
 import eu.jangos.manager.controller.ParameterService;
+import eu.jangos.manager.model.Locale;
 import eu.jangos.manager.model.Parameter1;
 import eu.jangos.manager.utils.ParameterConstants;
 import eu.jangos.manager.utils.Utils;
+import javax.swing.DefaultComboBoxModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +37,7 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
     private static final String ICON_IMAGE = "/images/parameters.png";
     
     private final ParameterService ps;
+    private final LocaleService ls;
     
     /**
      * Creates new form FrameAuthenticationParameters
@@ -42,14 +46,16 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
         initComponents();
         
         this.ps = null;
+        this.ls = null;
         
         this.setFrameIcon(Utils.createImageIcon(ICON_IMAGE, getClass()));                
     }
 
-    public FrameAuthenticationParameters(ParameterService ps) {
-        initComponents();
-                
+    public FrameAuthenticationParameters(ParameterService ps, LocaleService ls) {
+        initComponents();                                        
+        
         this.ps = ps;
+        this.ls = ls;
         
         this.setFrameIcon(Utils.createImageIcon(ICON_IMAGE, getClass()));
         
@@ -57,6 +63,11 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
         this.jSpinnerPort.setValue(Integer.parseInt(this.ps.getParameter(ParameterConstants.KEY_AUTH_PORT)));
         this.jTFVersion.setText(this.ps.getParameter(ParameterConstants.KEY_AUTH_VERSION));
         this.jSpinnerTimeout.setValue(Integer.parseInt(this.ps.getParameter(ParameterConstants.KEY_AUTH_TIMEOUT)));
+        this.jCBLocale.setModel(new DefaultComboBoxModel(this.ls.getAllLocale().toArray()));
+        this.jCBLocale.setSelectedItem(this.ls.getLocaleForString(this.ps.getParameter(ParameterConstants.KEY_DEFAULT_LOCALE)));   
+        this.jSpinnerMinBuild.setValue(this.ps.getParameter(ParameterConstants.KEY_MIN_SUPPORTED_BUILD));
+        this.jSpinnerMaxBuild.setValue(this.ps.getParameter(ParameterConstants.KEY_MAX_SUPPORTED_BUILD));
+        this.jSpinnerFailedAttempt.setValue(Integer.parseInt(this.ps.getParameter(ParameterConstants.KEY_MAX_FAILED_ATTEMPT)));
     }
     
     /**
@@ -69,6 +80,8 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
+        jPanelServerControls = new javax.swing.JPanel();
+        jButtonSave = new javax.swing.JButton();
         jTabbedPane = new javax.swing.JTabbedPane();
         jPanelServer = new javax.swing.JPanel();
         jPanelServerParams = new javax.swing.JPanel();
@@ -80,19 +93,37 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
         jTFVersion = new javax.swing.JTextField();
         jLabelTimeout = new javax.swing.JLabel();
         jSpinnerTimeout = new javax.swing.JSpinner();
-        jPanelServerControls = new javax.swing.JPanel();
-        jButtonSave = new javax.swing.JButton();
         jPanelLogin = new javax.swing.JPanel();
+        jPanelLoginParams = new javax.swing.JPanel();
+        jLabelLocale = new javax.swing.JLabel();
+        jCBLocale = new javax.swing.JComboBox();
+        jLabelMaxFailedAttempt = new javax.swing.JLabel();
+        jSpinnerFailedAttempt = new javax.swing.JSpinner();
+        jLabelMinBuild = new javax.swing.JLabel();
+        jLabelMaxBuild = new javax.swing.JLabel();
+        jSpinnerMaxBuild = new javax.swing.JSpinner();
+        jSpinnerMinBuild = new javax.swing.JSpinner();
 
         setClosable(true);
         setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
         setIconifiable(true);
         setMaximizable(true);
         setResizable(true);
-        setTitle("Parameters");
-        setMaximumSize(new java.awt.Dimension(60, 40));
-        setMinimumSize(new java.awt.Dimension(60, 40));
-        setPreferredSize(new java.awt.Dimension(60, 40));
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("eu/jangos/manager/Bundle"); // NOI18N
+        setTitle(bundle.getString("FrameAuthenticationParameters.title")); // NOI18N
+        setMaximumSize(new java.awt.Dimension(333, 253));
+        setMinimumSize(new java.awt.Dimension(333, 253));
+        setPreferredSize(new java.awt.Dimension(333, 253));
+
+        jButtonSave.setText(bundle.getString("FrameAuthenticationParameters.jButtonSave.text")); // NOI18N
+        jButtonSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSaveActionPerformed(evt);
+            }
+        });
+        jPanelServerControls.add(jButtonSave);
+
+        getContentPane().add(jPanelServerControls, java.awt.BorderLayout.PAGE_END);
 
         jTabbedPane.setMaximumSize(new java.awt.Dimension(60, 40));
         jTabbedPane.setMinimumSize(new java.awt.Dimension(60, 40));
@@ -105,7 +136,7 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
 
         jPanelServerParams.setLayout(new java.awt.GridBagLayout());
 
-        jLabelPort.setText("Port:");
+        jLabelPort.setText(bundle.getString("FrameAuthenticationParameters.jLabelPort.text")); // NOI18N
         jLabelPort.setMaximumSize(new java.awt.Dimension(110, 25));
         jLabelPort.setMinimumSize(new java.awt.Dimension(110, 25));
         jLabelPort.setPreferredSize(new java.awt.Dimension(110, 25));
@@ -123,7 +154,7 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
         gridBagConstraints.gridy = 1;
         jPanelServerParams.add(jSpinnerPort, gridBagConstraints);
 
-        jLabelAddress.setText("Address:");
+        jLabelAddress.setText(bundle.getString("FrameAuthenticationParameters.jLabelAddress.text")); // NOI18N
         jLabelAddress.setMaximumSize(new java.awt.Dimension(110, 25));
         jLabelAddress.setMinimumSize(new java.awt.Dimension(110, 25));
         jLabelAddress.setPreferredSize(new java.awt.Dimension(110, 25));
@@ -137,7 +168,7 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
         jTFAddress.setPreferredSize(new java.awt.Dimension(110, 25));
         jPanelServerParams.add(jTFAddress, new java.awt.GridBagConstraints());
 
-        jLabelVersion.setText("Version:");
+        jLabelVersion.setText(bundle.getString("FrameAuthenticationParameters.jLabelVersion.text")); // NOI18N
         jLabelVersion.setMaximumSize(new java.awt.Dimension(110, 25));
         jLabelVersion.setMinimumSize(new java.awt.Dimension(110, 25));
         jLabelVersion.setPreferredSize(new java.awt.Dimension(110, 25));
@@ -154,7 +185,7 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
         gridBagConstraints.gridy = 2;
         jPanelServerParams.add(jTFVersion, gridBagConstraints);
 
-        jLabelTimeout.setText("Timeout:");
+        jLabelTimeout.setText(bundle.getString("FrameAuthenticationParameters.jLabelTimeout.text")); // NOI18N
         jLabelTimeout.setMaximumSize(new java.awt.Dimension(110, 25));
         jLabelTimeout.setMinimumSize(new java.awt.Dimension(110, 25));
         jLabelTimeout.setPreferredSize(new java.awt.Dimension(110, 25));
@@ -172,30 +203,74 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
 
         jPanelServer.add(jPanelServerParams, java.awt.BorderLayout.CENTER);
 
-        jButtonSave.setText("Save");
-        jButtonSave.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonSaveActionPerformed(evt);
-            }
-        });
-        jPanelServerControls.add(jButtonSave);
+        jTabbedPane.addTab(bundle.getString("FrameAuthenticationParameters.jPanelServer.TabConstraints.tabTitle"), jPanelServer); // NOI18N
 
-        jPanelServer.add(jPanelServerControls, java.awt.BorderLayout.PAGE_END);
+        jPanelLogin.setLayout(new java.awt.BorderLayout());
 
-        jTabbedPane.addTab("Server", jPanelServer);
+        jPanelLoginParams.setLayout(new java.awt.GridBagLayout());
 
-        javax.swing.GroupLayout jPanelLoginLayout = new javax.swing.GroupLayout(jPanelLogin);
-        jPanelLogin.setLayout(jPanelLoginLayout);
-        jPanelLoginLayout.setHorizontalGroup(
-            jPanelLoginLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 527, Short.MAX_VALUE)
-        );
-        jPanelLoginLayout.setVerticalGroup(
-            jPanelLoginLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 189, Short.MAX_VALUE)
-        );
+        jLabelLocale.setText(bundle.getString("FrameAuthenticationParameters.jLabelLocale.text")); // NOI18N
+        jLabelLocale.setMaximumSize(new java.awt.Dimension(110, 25));
+        jLabelLocale.setMinimumSize(new java.awt.Dimension(110, 25));
+        jLabelLocale.setPreferredSize(new java.awt.Dimension(110, 25));
+        jPanelLoginParams.add(jLabelLocale, new java.awt.GridBagConstraints());
 
-        jTabbedPane.addTab("Login", jPanelLogin);
+        jCBLocale.setMaximumSize(new java.awt.Dimension(110, 25));
+        jCBLocale.setMinimumSize(new java.awt.Dimension(110, 25));
+        jCBLocale.setPreferredSize(new java.awt.Dimension(110, 25));
+        jPanelLoginParams.add(jCBLocale, new java.awt.GridBagConstraints());
+
+        jLabelMaxFailedAttempt.setText(bundle.getString("FrameAuthenticationParameters.jLabelMaxFailedAttempt.text")); // NOI18N
+        jLabelMaxFailedAttempt.setMaximumSize(new java.awt.Dimension(110, 25));
+        jLabelMaxFailedAttempt.setMinimumSize(new java.awt.Dimension(110, 25));
+        jLabelMaxFailedAttempt.setPreferredSize(new java.awt.Dimension(110, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 1;
+        jPanelLoginParams.add(jLabelMaxFailedAttempt, gridBagConstraints);
+
+        jSpinnerFailedAttempt.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(0), Integer.valueOf(0), null, Integer.valueOf(1)));
+        jSpinnerFailedAttempt.setMaximumSize(new java.awt.Dimension(110, 25));
+        jSpinnerFailedAttempt.setMinimumSize(new java.awt.Dimension(110, 25));
+        jSpinnerFailedAttempt.setPreferredSize(new java.awt.Dimension(110, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 1;
+        jPanelLoginParams.add(jSpinnerFailedAttempt, gridBagConstraints);
+
+        jLabelMinBuild.setText(bundle.getString("FrameAuthenticationParameters.jLabelMinBuild.text")); // NOI18N
+        jLabelMinBuild.setMaximumSize(new java.awt.Dimension(110, 25));
+        jLabelMinBuild.setMinimumSize(new java.awt.Dimension(110, 25));
+        jLabelMinBuild.setPreferredSize(new java.awt.Dimension(110, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 2;
+        jPanelLoginParams.add(jLabelMinBuild, gridBagConstraints);
+
+        jLabelMaxBuild.setText(bundle.getString("FrameAuthenticationParameters.jLabelMaxBuild.text")); // NOI18N
+        jLabelMaxBuild.setMaximumSize(new java.awt.Dimension(110, 25));
+        jLabelMaxBuild.setMinimumSize(new java.awt.Dimension(110, 25));
+        jLabelMaxBuild.setPreferredSize(new java.awt.Dimension(110, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 3;
+        jPanelLoginParams.add(jLabelMaxBuild, gridBagConstraints);
+
+        jSpinnerMaxBuild.setModel(new javax.swing.SpinnerListModel(new String[] {"5875", "6005", "6141"}));
+        jSpinnerMaxBuild.setMaximumSize(new java.awt.Dimension(110, 25));
+        jSpinnerMaxBuild.setMinimumSize(new java.awt.Dimension(110, 25));
+        jSpinnerMaxBuild.setPreferredSize(new java.awt.Dimension(110, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 3;
+        jPanelLoginParams.add(jSpinnerMaxBuild, gridBagConstraints);
+
+        jSpinnerMinBuild.setModel(new javax.swing.SpinnerListModel(new String[] {"5875", "6005", "6141"}));
+        jSpinnerMinBuild.setMaximumSize(new java.awt.Dimension(110, 25));
+        jSpinnerMinBuild.setMinimumSize(new java.awt.Dimension(110, 25));
+        jSpinnerMinBuild.setPreferredSize(new java.awt.Dimension(110, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 2;
+        jPanelLoginParams.add(jSpinnerMinBuild, gridBagConstraints);
+
+        jPanelLogin.add(jPanelLoginParams, java.awt.BorderLayout.CENTER);
+
+        jTabbedPane.addTab(bundle.getString("FrameAuthenticationParameters.jPanelLogin.TabConstraints.tabTitle"), jPanelLogin); // NOI18N
 
         getContentPane().add(jTabbedPane, java.awt.BorderLayout.CENTER);
 
@@ -206,14 +281,18 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
         saveParam(ParameterConstants.KEY_AUTH_PORT, ""+this.jSpinnerPort.getValue());
         saveParam(ParameterConstants.KEY_AUTH_ADDRESS, this.jTFAddress.getText());
         saveParam(ParameterConstants.KEY_AUTH_TIMEOUT, ""+this.jSpinnerTimeout.getValue());
-        saveParam(ParameterConstants.KEY_AUTH_VERSION, this.jTFVersion.getText());                                
+        saveParam(ParameterConstants.KEY_AUTH_VERSION, this.jTFVersion.getText());       
+        saveParam(ParameterConstants.KEY_DEFAULT_LOCALE, ((Locale) this.jCBLocale.getSelectedItem()).getLocaleString());
+        saveParam(ParameterConstants.KEY_MAX_FAILED_ATTEMPT, ""+this.jSpinnerFailedAttempt.getValue());
+        saveParam(ParameterConstants.KEY_MIN_SUPPORTED_BUILD, ""+this.jSpinnerMinBuild.getValue());
+        saveParam(ParameterConstants.KEY_MAX_SUPPORTED_BUILD, ""+this.jSpinnerMaxBuild.getValue());
     }//GEN-LAST:event_jButtonSaveActionPerformed
 
     private void saveParam(String key, String value)
     {
         Parameter1 p = this.ps.getParameterObject(key);
         
-        if(p != null)
+        if(p != null && !p.getVal().equals(value))
         {
             p.setVal(value);
             this.ps.save(p);
@@ -222,14 +301,23 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonSave;
+    private javax.swing.JComboBox jCBLocale;
     private javax.swing.JLabel jLabelAddress;
+    private javax.swing.JLabel jLabelLocale;
+    private javax.swing.JLabel jLabelMaxBuild;
+    private javax.swing.JLabel jLabelMaxFailedAttempt;
+    private javax.swing.JLabel jLabelMinBuild;
     private javax.swing.JLabel jLabelPort;
     private javax.swing.JLabel jLabelTimeout;
     private javax.swing.JLabel jLabelVersion;
     private javax.swing.JPanel jPanelLogin;
+    private javax.swing.JPanel jPanelLoginParams;
     private javax.swing.JPanel jPanelServer;
     private javax.swing.JPanel jPanelServerControls;
     private javax.swing.JPanel jPanelServerParams;
+    private javax.swing.JSpinner jSpinnerFailedAttempt;
+    private javax.swing.JSpinner jSpinnerMaxBuild;
+    private javax.swing.JSpinner jSpinnerMinBuild;
     private javax.swing.JSpinner jSpinnerPort;
     private javax.swing.JSpinner jSpinnerTimeout;
     private javax.swing.JTextField jTFAddress;

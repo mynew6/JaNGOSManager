@@ -147,7 +147,8 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
         setIconifiable(true);
         setMaximizable(true);
         setResizable(true);
-        setTitle("Realm Management");
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("eu/jangos/manager/Bundle"); // NOI18N
+        setTitle(bundle.getString("FrameManageRealm.title")); // NOI18N
         setMinimumSize(new java.awt.Dimension(720, 480));
         setPreferredSize(new java.awt.Dimension(720, 480));
         getContentPane().setLayout(new java.awt.GridBagLayout());
@@ -169,7 +170,7 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
         gridBagConstraints.weighty = 1.0;
         getContentPane().add(jScrollPaneTableAccounts, gridBagConstraints);
 
-        jPanelFilters.setBorder(javax.swing.BorderFactory.createTitledBorder("Filters"));
+        jPanelFilters.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("FrameManageRealm.jPanelFilters.border.title"))); // NOI18N
         jPanelFilters.setLayout(new java.awt.GridBagLayout());
 
         jPanelGeneric.setMaximumSize(new java.awt.Dimension(500, 140));
@@ -179,7 +180,7 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
         jPanelGeneric.setLayout(new java.awt.GridBagLayout());
 
         jLabelName.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        jLabelName.setText("Name:");
+        jLabelName.setText(bundle.getString("FrameManageRealm.jLabelName.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -193,14 +194,14 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
         gridBagConstraints.gridy = 0;
         jPanelGeneric.add(jTFName, gridBagConstraints);
 
-        jCBMatch.setText("Match");
-        jCBMatch.setToolTipText("Retrieve only realm exactly matching the name");
+        jCBMatch.setText(bundle.getString("FrameManageRealm.jCBMatch.text")); // NOI18N
+        jCBMatch.setToolTipText(bundle.getString("FrameManageRealm.jCBMatch.toolTipText")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         jPanelGeneric.add(jCBMatch, gridBagConstraints);
 
-        jLabelType.setText("Type:");
+        jLabelType.setText(bundle.getString("FrameManageRealm.jLabelType.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -215,7 +216,7 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
         gridBagConstraints.gridy = 1;
         jPanelGeneric.add(jCBType, gridBagConstraints);
 
-        jLabelTimezone.setText("Timezone:");
+        jLabelTimezone.setText(bundle.getString("FrameManageRealm.jLabelTimezone.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -230,7 +231,7 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
         gridBagConstraints.gridy = 2;
         jPanelGeneric.add(jCBTimezone, gridBagConstraints);
 
-        jButtonReset.setText("Reset");
+        jButtonReset.setText(bundle.getString("FrameManageRealm.jButtonReset.text")); // NOI18N
         jButtonReset.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jButtonResetMouseReleased(evt);
@@ -238,7 +239,7 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
         });
         jPanel1.add(jButtonReset);
 
-        jButtonSearch.setText("Search");
+        jButtonSearch.setText(bundle.getString("FrameManageRealm.jButtonSearch.text")); // NOI18N
         jButtonSearch.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jButtonSearchMouseReleased(evt);
@@ -267,9 +268,9 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         getContentPane().add(jPanelFilters, gridBagConstraints);
 
-        jPanelControls.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Controls", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
+        jPanelControls.setBorder(javax.swing.BorderFactory.createTitledBorder(null, bundle.getString("FrameManageRealm.jPanelControls.border.title"), javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION)); // NOI18N
 
-        jButtonCalcPop.setText("Calculate Population");
+        jButtonCalcPop.setText(bundle.getString("FrameManageRealm.jButtonCalcPop.text")); // NOI18N
         jButtonCalcPop.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jButtonCalcPopMouseReleased(evt);
@@ -277,8 +278,8 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
         });
         jPanelControls.add(jButtonCalcPop);
 
-        jButtonDelete.setText("Delete");
-        jButtonDelete.setToolTipText("Delete all the selected account");
+        jButtonDelete.setText(bundle.getString("FrameManageRealm.jButtonDelete.text")); // NOI18N
+        jButtonDelete.setToolTipText(bundle.getString("FrameManageRealm.jButtonDelete.toolTipText")); // NOI18N
         jButtonDelete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonDeleteActionPerformed(evt);
@@ -286,8 +287,8 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
         });
         jPanelControls.add(jButtonDelete);
 
-        jButtonCreate.setText("Create");
-        jButtonCreate.setToolTipText("Open the window to create a new account");
+        jButtonCreate.setText(bundle.getString("FrameManageRealm.jButtonCreate.text")); // NOI18N
+        jButtonCreate.setToolTipText(bundle.getString("FrameManageRealm.jButtonCreate.toolTipText")); // NOI18N
         jButtonCreate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonCreateActionPerformed(evt);
@@ -295,8 +296,8 @@ public class FrameManageRealm extends javax.swing.JInternalFrame {
         });
         jPanelControls.add(jButtonCreate);
 
-        jButtonSave.setText("Save");
-        jButtonSave.setToolTipText("Save all the changes");
+        jButtonSave.setText(bundle.getString("FrameManageRealm.jButtonSave.text")); // NOI18N
+        jButtonSave.setToolTipText(bundle.getString("FrameManageRealm.jButtonSave.toolTipText")); // NOI18N
         jButtonSave.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonSaveActionPerformed(evt);

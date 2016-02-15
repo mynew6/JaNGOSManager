@@ -40,8 +40,21 @@ import javax.swing.table.AbstractTableModel;
  * @since 11-02-2016
  */
 public class JTableAccountModel extends AbstractTableModel {
-
-    private final String[] COLUMN_NAME = {"Name", "Password", "Email", "Banned", "Unban date", "Ban reason", "Attempt", "Locked", "Locale", "Online", "Realm", "Last login", "Last IP", "Creation"};
+    private final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("eu/jangos/manager/Bundle"); // NOI18N
+    private final String[] COLUMN_NAME = {bundle.getString("JTableAccountModel.name"),
+        bundle.getString("JTableAccountModel.password"), 
+        bundle.getString("JTableAccountModel.email"), 
+        bundle.getString("JTableAccountModel.banned"), 
+        bundle.getString("JTableAccountModel.unban"), 
+        bundle.getString("JTableAccountModel.reason"),  
+        bundle.getString("JTableAccountModel.attempt"), 
+        bundle.getString("JTableAccountModel.locked"), 
+        bundle.getString("JTableAccountModel.locale"), 
+        bundle.getString("JTableAccountModel.online"), 
+        bundle.getString("JTableAccountModel.realm"), 
+        bundle.getString("JTableAccountModel.lastlogin"),             
+        bundle.getString("JTableAccountModel.lastip"), 
+        bundle.getString("JTableAccountModel.creation")};
     private final int COLUMN_COUNT = COLUMN_NAME.length;
     private final Class[] COLUMN_CLASS = {String.class, String.class, String.class, Boolean.class, String.class, String.class, Integer.class, Boolean.class, Locale.class, Boolean.class, Realm.class, String.class, String.class, String.class};
 

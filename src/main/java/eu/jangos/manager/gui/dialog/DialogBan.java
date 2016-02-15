@@ -93,7 +93,8 @@ public class DialogBan extends javax.swing.JDialog {
         jButtonCancel = new javax.swing.JButton();
         jButtonOK = new javax.swing.JButton();
 
-        setTitle("Please provide ban informations");
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("eu/jangos/manager/Bundle"); // NOI18N
+        setTitle(bundle.getString("DialogBan.title")); // NOI18N
         setMaximumSize(new java.awt.Dimension(400, 150));
         setMinimumSize(new java.awt.Dimension(400, 150));
         setModalityType(java.awt.Dialog.ModalityType.APPLICATION_MODAL);
@@ -103,7 +104,7 @@ public class DialogBan extends javax.swing.JDialog {
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
-        jLabelReason.setText("Reason: ");
+        jLabelReason.setText(bundle.getString("DialogBan.jLabelReason.text")); // NOI18N
         jPanel1.add(jLabelReason, new java.awt.GridBagConstraints());
 
         jTFReason.setMaximumSize(new java.awt.Dimension(300, 25));
@@ -111,7 +112,7 @@ public class DialogBan extends javax.swing.JDialog {
         jTFReason.setPreferredSize(new java.awt.Dimension(300, 25));
         jPanel1.add(jTFReason, new java.awt.GridBagConstraints());
 
-        jLabelDuration.setText("Duration:");
+        jLabelDuration.setText(bundle.getString("DialogBan.jLabelDuration.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         jPanel1.add(jLabelDuration, gridBagConstraints);
@@ -132,7 +133,7 @@ public class DialogBan extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(50, 0, 0, 0);
         jPanel1.add(jSeparator1, gridBagConstraints);
 
-        jButtonCancel.setText("Cancel");
+        jButtonCancel.setText(bundle.getString("DialogBan.jButtonCancel.text")); // NOI18N
         jButtonCancel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonCancelActionPerformed(evt);
@@ -140,7 +141,7 @@ public class DialogBan extends javax.swing.JDialog {
         });
         jPanel2.add(jButtonCancel);
 
-        jButtonOK.setText("OK");
+        jButtonOK.setText(bundle.getString("DialogBan.jButtonOK.text")); // NOI18N
         jButtonOK.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonOKActionPerformed(evt);

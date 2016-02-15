@@ -139,7 +139,7 @@ public class RealmService {
             return;
         }
         
-        float population = (realm.getCountPlayers() + realm.getMaxPlayers()) * 2.0f;
+        float population = (realm.getCountPlayers() * 1.0f / realm.getMaxPlayers() * 1.0f);
         
         realm.setPopulation(population);
         

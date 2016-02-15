@@ -16,7 +16,6 @@ package eu.jangos.manager.gui.dialog;
  * limitations under the License.
  */
 
-import eu.jangos.manager.JaNGOSManager;
 import javax.swing.JOptionPane;
 
 /**
@@ -58,20 +57,21 @@ public class DialogAccountDetails extends javax.swing.JDialog {
         jButtonCancel = new javax.swing.JButton();
         jButtonCreateAccount = new javax.swing.JButton();
 
-        setTitle("Add account");
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("eu/jangos/manager/Bundle"); // NOI18N
+        setTitle(bundle.getString("DialogAccountDetails.title")); // NOI18N
         setMinimumSize(new java.awt.Dimension(427, 247));
         setModal(true);
         getContentPane().setLayout(new java.awt.GridLayout(3, 2, 5, 4));
 
-        jLabelPseudo.setText("Pseudo");
+        jLabelPseudo.setText(bundle.getString("DialogAccountDetails.jLabelPseudo.text")); // NOI18N
         getContentPane().add(jLabelPseudo);
         getContentPane().add(jTFName);
 
-        jLabelPassword.setText("Password");
+        jLabelPassword.setText(bundle.getString("DialogAccountDetails.jLabelPassword.text")); // NOI18N
         getContentPane().add(jLabelPassword);
         getContentPane().add(jPFPassword);
 
-        jButtonCancel.setText("Cancel");
+        jButtonCancel.setText(bundle.getString("DialogAccountDetails.jButtonCancel.text")); // NOI18N
         jButtonCancel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jButtonCancelMouseReleased(evt);
@@ -79,7 +79,7 @@ public class DialogAccountDetails extends javax.swing.JDialog {
         });
         getContentPane().add(jButtonCancel);
 
-        jButtonCreateAccount.setText("Create");
+        jButtonCreateAccount.setText(bundle.getString("DialogAccountDetails.jButtonCreateAccount.text")); // NOI18N
         jButtonCreateAccount.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonCreateAccountActionPerformed(evt);

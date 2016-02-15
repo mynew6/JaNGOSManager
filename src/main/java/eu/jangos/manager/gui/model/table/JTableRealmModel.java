@@ -32,7 +32,21 @@ import javax.swing.table.AbstractTableModel;
  */
 public class JTableRealmModel extends AbstractTableModel {
 
-    private final String[] COLUMN_NAME = {"Name", "Address", "Port", "Type", "Timezone", "Population", "Max. Players", "Total Players", "Invalid", "Offline", "Show version", "New Players", "Recommended"};
+    private final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("eu/jangos/manager/Bundle"); // NOI18N
+    private final String[] COLUMN_NAME = {
+        bundle.getString("JTableRealmModel.name"),
+        bundle.getString("JTableRealmModel.address"),
+        bundle.getString("JTableRealmModel.port"),
+        bundle.getString("JTableRealmModel.type"),
+        bundle.getString("JTableRealmModel.timezone"),
+        bundle.getString("JTableRealmModel.population"),
+        bundle.getString("JTableRealmModel.maxplayers"),
+        bundle.getString("JTableRealmModel.totalplayers"),
+        bundle.getString("JTableRealmModel.invalid"),
+        bundle.getString("JTableRealmModel.offline"),
+        bundle.getString("JTableRealmModel.showversion"),
+        bundle.getString("JTableRealmModel.newplayers"),
+        bundle.getString("JTableRealmModel.recommended")};
     private final int COLUMN_COUNT = COLUMN_NAME.length;
     private final Class[] COLUMN_CLASS = {String.class, String.class, Integer.class, Realmtype.class, Realmtimezone.class, String.class, Integer.class, Integer.class, Boolean.class, Boolean.class, Boolean.class, Boolean.class, Boolean.class};
 

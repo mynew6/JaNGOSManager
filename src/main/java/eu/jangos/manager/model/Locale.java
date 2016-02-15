@@ -81,8 +81,10 @@ public class Locale  implements java.io.Serializable {
         return true;
     }
 
-
-
+    @Override
+    public String toString() {
+        return this.locale;
+    }
 
 }
 

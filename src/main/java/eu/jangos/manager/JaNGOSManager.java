@@ -28,9 +28,11 @@ import eu.jangos.manager.gui.frame.FrameManageRealm;
 import eu.jangos.manager.gui.frame.FrameAuthenticationParameters;
 import eu.jangos.manager.model.Account;
 import eu.jangos.manager.utils.Utils;
+import java.awt.Dimension;
 import java.beans.PropertyVetoException;
 import java.util.logging.Level;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +81,7 @@ public class JaNGOSManager extends JFrame {
         ;
         fManageRealm = new FrameManageRealm(this.rs, this.rts, this.ts);
         ;
-        fAuthenticationParameters = new FrameAuthenticationParameters(this.ps);
+        fAuthenticationParameters = new FrameAuthenticationParameters(this.ps, this.ls);
         jMenuBar = new javax.swing.JMenuBar();
         jMenuFile = new javax.swing.JMenu();
         jMenuDisconnect = new javax.swing.JMenuItem();
@@ -102,7 +104,8 @@ public class JaNGOSManager extends JFrame {
         dialogLogin.getAccessibleContext().setAccessibleParent(this);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("JaNGOS Manager Application");
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("eu/jangos/manager/Bundle"); // NOI18N
+        setTitle(bundle.getString("JaNGOSManager.title")); // NOI18N
         setIconImage(getIconImage());
         setMinimumSize(new java.awt.Dimension(720, 480));
         addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -144,20 +147,18 @@ public class JaNGOSManager extends JFrame {
         }
         fManageRealm.getAccessibleContext().setAccessibleParent(this);
 
+        fAuthenticationParameters.setMaximumSize(new java.awt.Dimension(333, 253));
+        fAuthenticationParameters.setMinimumSize(new java.awt.Dimension(333, 253));
+        fAuthenticationParameters.setPreferredSize(new java.awt.Dimension(333, 253));
         fAuthenticationParameters.setVisible(false);
         jDesktopMainPane.add(fAuthenticationParameters);
-        fAuthenticationParameters.setBounds(50, 110, 576, 372);
-        try {
-            fAuthenticationParameters.setMaximum(true);
-        } catch (java.beans.PropertyVetoException e1) {
-            e1.printStackTrace();
-        }
+        fAuthenticationParameters.setBounds(50, 110, 333, 253);
 
         getContentPane().add(jDesktopMainPane, java.awt.BorderLayout.CENTER);
 
-        jMenuFile.setText("File");
+        jMenuFile.setText(bundle.getString("JaNGOSManager.jMenuFile.text")); // NOI18N
 
-        jMenuDisconnect.setText("Disconnect");
+        jMenuDisconnect.setText(bundle.getString("JaNGOSManager.jMenuDisconnect.text")); // NOI18N
         jMenuDisconnect.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jMenuDisconnectMouseReleased(evt);
@@ -165,7 +166,7 @@ public class JaNGOSManager extends JFrame {
         });
         jMenuFile.add(jMenuDisconnect);
 
-        jMenuQuit.setText("Quit");
+        jMenuQuit.setText(bundle.getString("JaNGOSManager.jMenuQuit.text")); // NOI18N
         jMenuQuit.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jMenuQuitMouseReleased(evt);
@@ -175,9 +176,9 @@ public class JaNGOSManager extends JFrame {
 
         jMenuBar.add(jMenuFile);
 
-        jMenuAccount.setText("Authentication");
+        jMenuAccount.setText(bundle.getString("JaNGOSManager.jMenuAccount.text")); // NOI18N
 
-        jMenuManageAccounts.setText("Accounts");
+        jMenuManageAccounts.setText(bundle.getString("JaNGOSManager.jMenuManageAccounts.text")); // NOI18N
         jMenuManageAccounts.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jMenuManageAccountsMouseReleased(evt);
@@ -185,7 +186,7 @@ public class JaNGOSManager extends JFrame {
         });
         jMenuAccount.add(jMenuManageAccounts);
 
-        jMenuManageRealms.setText("Realms");
+        jMenuManageRealms.setText(bundle.getString("JaNGOSManager.jMenuManageRealms.text")); // NOI18N
         jMenuManageRealms.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jMenuManageRealmsMouseReleased(evt);
@@ -193,7 +194,7 @@ public class JaNGOSManager extends JFrame {
         });
         jMenuAccount.add(jMenuManageRealms);
 
-        jMenuManageParameters.setText("Parameters");
+        jMenuManageParameters.setText(bundle.getString("JaNGOSManager.jMenuManageParameters.text")); // NOI18N
         jMenuManageParameters.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jMenuManageParametersMouseReleased(evt);
@@ -203,12 +204,12 @@ public class JaNGOSManager extends JFrame {
 
         jMenuBar.add(jMenuAccount);
 
-        jMenuItems.setText("Items");
+        jMenuItems.setText(bundle.getString("JaNGOSManager.jMenuItems.text")); // NOI18N
 
-        jMenuItemManage.setText("Manage Items");
+        jMenuItemManage.setText(bundle.getString("JaNGOSManager.jMenuItemManage.text")); // NOI18N
         jMenuItems.add(jMenuItemManage);
 
-        jMenuStartingItems.setText("Starting Items");
+        jMenuStartingItems.setText(bundle.getString("JaNGOSManager.jMenuStartingItems.text")); // NOI18N
         jMenuStartingItems.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jMenuStartingItemsMouseReleased(evt);
@@ -218,9 +219,9 @@ public class JaNGOSManager extends JFrame {
 
         jMenuBar.add(jMenuItems);
 
-        jMenuHelp.setText("Help");
+        jMenuHelp.setText(bundle.getString("JaNGOSManager.jMenuHelp.text")); // NOI18N
 
-        jMenuItemAbout.setText("About");
+        jMenuItemAbout.setText(bundle.getString("JaNGOSManager.jMenuItemAbout.text")); // NOI18N
         jMenuItemAbout.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jMenuItemAboutMouseReleased(evt);
@@ -309,6 +310,7 @@ public class JaNGOSManager extends JFrame {
     }//GEN-LAST:event_jMenuManageRealmsMouseReleased
 
     private void jMenuManageParametersMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenuManageParametersMouseReleased
+        centerInternalFrame(fAuthenticationParameters);
         fAuthenticationParameters.setVisible(true);
         fAuthenticationParameters.toFront();
         try {
@@ -317,6 +319,14 @@ public class JaNGOSManager extends JFrame {
             java.util.logging.Logger.getLogger(JaNGOSManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jMenuManageParametersMouseReleased
+
+    private void centerInternalFrame(JInternalFrame frame) {
+        Dimension desktopSize = this.jDesktopMainPane.getSize();
+        Dimension jInternalFrameSize = frame.getSize();
+        int width = (desktopSize.width - jInternalFrameSize.width) / 2;
+        int height = (desktopSize.height - jInternalFrameSize.height) / 2;
+        frame.setLocation(width, height);
+    }
 
     private void showError(String title, String message) {
         JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
