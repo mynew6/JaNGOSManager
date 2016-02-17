@@ -82,6 +82,7 @@ public class JaNGOSManager extends JFrame {
         fManageRealm = new FrameManageRealm(this.rs, this.rts, this.ts);
         ;
         fAuthenticationParameters = new FrameAuthenticationParameters(this.ps, this.ls);
+        fManageRoles = new eu.jangos.manager.gui.frame.FrameManageRoles();
         jMenuBar = new javax.swing.JMenuBar();
         jMenuFile = new javax.swing.JMenu();
         jMenuDisconnect = new javax.swing.JMenuItem();
@@ -89,6 +90,7 @@ public class JaNGOSManager extends JFrame {
         jMenuAccount = new javax.swing.JMenu();
         jMenuManageAccounts = new javax.swing.JMenuItem();
         jMenuManageRealms = new javax.swing.JMenuItem();
+        jMenuManageRoles = new javax.swing.JMenuItem();
         jMenuManageParameters = new javax.swing.JMenuItem();
         jMenuItems = new javax.swing.JMenu();
         jMenuItemManage = new javax.swing.JMenuItem();
@@ -147,12 +149,20 @@ public class JaNGOSManager extends JFrame {
         }
         fManageRealm.getAccessibleContext().setAccessibleParent(this);
 
-        fAuthenticationParameters.setMaximumSize(new java.awt.Dimension(333, 253));
-        fAuthenticationParameters.setMinimumSize(new java.awt.Dimension(333, 253));
-        fAuthenticationParameters.setPreferredSize(new java.awt.Dimension(333, 253));
         fAuthenticationParameters.setVisible(false);
         jDesktopMainPane.add(fAuthenticationParameters);
         fAuthenticationParameters.setBounds(50, 110, 333, 253);
+
+        fManageRoles.setClosable(true);
+        fManageRoles.setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
+        fManageRoles.setIconifiable(true);
+        fManageRoles.setMaximizable(true);
+        fManageRoles.setResizable(true);
+        fManageRoles.setMaximumSize(new java.awt.Dimension(416, 334));
+        fManageRoles.setMinimumSize(new java.awt.Dimension(416, 334));
+        fManageRoles.setVisible(false);
+        jDesktopMainPane.add(fManageRoles);
+        fManageRoles.setBounds(240, 80, 416, 334);
 
         getContentPane().add(jDesktopMainPane, java.awt.BorderLayout.CENTER);
 
@@ -193,6 +203,14 @@ public class JaNGOSManager extends JFrame {
             }
         });
         jMenuAccount.add(jMenuManageRealms);
+
+        jMenuManageRoles.setText(bundle.getString("JaNGOSManager.jMenuManageRoles.text")); // NOI18N
+        jMenuManageRoles.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuManageRolesActionPerformed(evt);
+            }
+        });
+        jMenuAccount.add(jMenuManageRoles);
 
         jMenuManageParameters.setText(bundle.getString("JaNGOSManager.jMenuManageParameters.text")); // NOI18N
         jMenuManageParameters.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -320,6 +338,17 @@ public class JaNGOSManager extends JFrame {
         }
     }//GEN-LAST:event_jMenuManageParametersMouseReleased
 
+    private void jMenuManageRolesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuManageRolesActionPerformed
+        centerInternalFrame(fManageRoles);
+        fManageRoles.setVisible(true);
+        fManageRoles.toFront();
+        try {
+            fManageRoles.setSelected(true);
+        } catch (PropertyVetoException ex) {
+            java.util.logging.Logger.getLogger(JaNGOSManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jMenuManageRolesActionPerformed
+
     private void centerInternalFrame(JInternalFrame frame) {
         Dimension desktopSize = this.jDesktopMainPane.getSize();
         Dimension jInternalFrameSize = frame.getSize();
@@ -379,6 +408,7 @@ public class JaNGOSManager extends JFrame {
     private eu.jangos.manager.gui.frame.FrameAuthenticationParameters fAuthenticationParameters;
     private eu.jangos.manager.gui.frame.FrameManageAccount fManageAccount;
     private eu.jangos.manager.gui.frame.FrameManageRealm fManageRealm;
+    private eu.jangos.manager.gui.frame.FrameManageRoles fManageRoles;
     private javax.swing.JDesktopPane jDesktopMainPane;
     private javax.swing.JMenu jMenuAccount;
     private javax.swing.JMenuBar jMenuBar;
@@ -391,6 +421,7 @@ public class JaNGOSManager extends JFrame {
     private javax.swing.JMenuItem jMenuManageAccounts;
     private javax.swing.JMenuItem jMenuManageParameters;
     private javax.swing.JMenuItem jMenuManageRealms;
+    private javax.swing.JMenuItem jMenuManageRoles;
     private javax.swing.JMenuItem jMenuQuit;
     private javax.swing.JMenuItem jMenuStartingItems;
     // End of variables declaration//GEN-END:variables
