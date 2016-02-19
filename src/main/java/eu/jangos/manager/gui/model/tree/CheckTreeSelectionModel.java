@@ -45,8 +45,8 @@ public class CheckTreeSelectionModel extends DefaultTreeSelectionModel {
         if (selectionPaths == null) {
             return false;
         }
-        for (int j = 0; j < selectionPaths.length; j++) {
-            if (isDescendant(selectionPaths[j], path)) {
+        for (TreePath selectionPath : selectionPaths) {
+            if (isDescendant(selectionPath, path)) {
                 return true;
             }
         }
@@ -78,10 +78,12 @@ public class CheckTreeSelectionModel extends DefaultTreeSelectionModel {
         return true;
     }
 
+    @Override
     public void setSelectionPaths(TreePath[] pPaths) {
         throw new UnsupportedOperationException("not implemented yet!!!");
     }
 
+    @Override
     public void addSelectionPaths(TreePath[] paths) {
         // unselect all descendants of paths[] 
         for (int i = 0; i < paths.length; i++) {
@@ -148,6 +150,7 @@ public class CheckTreeSelectionModel extends DefaultTreeSelectionModel {
         return true;
     }
 
+    @Override
     public void removeSelectionPaths(TreePath[] paths) {
         for (int i = 0; i < paths.length; i++) {
             TreePath path = paths[i];

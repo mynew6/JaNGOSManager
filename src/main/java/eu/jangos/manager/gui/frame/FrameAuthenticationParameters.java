@@ -17,8 +17,10 @@ package eu.jangos.manager.gui.frame;
 
 import eu.jangos.manager.controller.LocaleService;
 import eu.jangos.manager.controller.ParameterService;
+import eu.jangos.manager.controller.RolesService;
 import eu.jangos.manager.model.Locale;
 import eu.jangos.manager.model.Parameter1;
+import eu.jangos.manager.model.Roles;
 import eu.jangos.manager.utils.ParameterConstants;
 import eu.jangos.manager.utils.Utils;
 import javax.swing.DefaultComboBoxModel;
@@ -38,6 +40,7 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
     
     private final ParameterService ps;
     private final LocaleService ls;
+    private final RolesService rs;
     
     /**
      * Creates new form FrameAuthenticationParameters
@@ -47,15 +50,17 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
         
         this.ps = null;
         this.ls = null;
+        this.rs = null;
         
         this.setFrameIcon(Utils.createImageIcon(ICON_IMAGE, getClass()));                
     }
 
-    public FrameAuthenticationParameters(ParameterService ps, LocaleService ls) {
+    public FrameAuthenticationParameters(ParameterService ps, LocaleService ls, RolesService rs) {
         initComponents();                                        
         
         this.ps = ps;
         this.ls = ls;
+        this.rs = rs;
         
         this.setFrameIcon(Utils.createImageIcon(ICON_IMAGE, getClass()));
         
@@ -68,6 +73,8 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
         this.jSpinnerMinBuild.setValue(this.ps.getParameter(ParameterConstants.KEY_MIN_SUPPORTED_BUILD));
         this.jSpinnerMaxBuild.setValue(this.ps.getParameter(ParameterConstants.KEY_MAX_SUPPORTED_BUILD));
         this.jSpinnerFailedAttempt.setValue(Integer.parseInt(this.ps.getParameter(ParameterConstants.KEY_MAX_FAILED_ATTEMPT)));
+        this.jCBRoles.setModel(new DefaultComboBoxModel(this.rs.getAllRoles().toArray()));
+        this.jCBRoles.setSelectedItem(this.rs.getRole(this.ps.getParameter(ParameterConstants.KEY_DEFAULT_ROLE)));
     }
     
     /**
@@ -103,6 +110,8 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
         jLabelMaxBuild = new javax.swing.JLabel();
         jSpinnerMaxBuild = new javax.swing.JSpinner();
         jSpinnerMinBuild = new javax.swing.JSpinner();
+        jLabelRole = new javax.swing.JLabel();
+        jCBRoles = new javax.swing.JComboBox();
 
         setClosable(true);
         setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
@@ -268,6 +277,22 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
         gridBagConstraints.gridy = 2;
         jPanelLoginParams.add(jSpinnerMinBuild, gridBagConstraints);
 
+        jLabelRole.setText(bundle.getString("FrameAuthenticationParameters.jLabelRole.text")); // NOI18N
+        jLabelRole.setMaximumSize(new java.awt.Dimension(110, 25));
+        jLabelRole.setMinimumSize(new java.awt.Dimension(110, 25));
+        jLabelRole.setPreferredSize(new java.awt.Dimension(110, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        jPanelLoginParams.add(jLabelRole, gridBagConstraints);
+
+        jCBRoles.setMaximumSize(new java.awt.Dimension(110, 25));
+        jCBRoles.setMinimumSize(new java.awt.Dimension(110, 25));
+        jCBRoles.setPreferredSize(new java.awt.Dimension(110, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        jPanelLoginParams.add(jCBRoles, gridBagConstraints);
+
         jPanelLogin.add(jPanelLoginParams, java.awt.BorderLayout.CENTER);
 
         jTabbedPane.addTab(bundle.getString("FrameAuthenticationParameters.jPanelLogin.TabConstraints.tabTitle"), jPanelLogin); // NOI18N
@@ -286,6 +311,7 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
         saveParam(ParameterConstants.KEY_MAX_FAILED_ATTEMPT, ""+this.jSpinnerFailedAttempt.getValue());
         saveParam(ParameterConstants.KEY_MIN_SUPPORTED_BUILD, ""+this.jSpinnerMinBuild.getValue());
         saveParam(ParameterConstants.KEY_MAX_SUPPORTED_BUILD, ""+this.jSpinnerMaxBuild.getValue());
+        saveParam(ParameterConstants.KEY_DEFAULT_ROLE, ((Roles) this.jCBRoles.getSelectedItem()).getName());
     }//GEN-LAST:event_jButtonSaveActionPerformed
 
     private void saveParam(String key, String value)
@@ -302,12 +328,14 @@ public class FrameAuthenticationParameters extends javax.swing.JInternalFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonSave;
     private javax.swing.JComboBox jCBLocale;
+    private javax.swing.JComboBox jCBRoles;
     private javax.swing.JLabel jLabelAddress;
     private javax.swing.JLabel jLabelLocale;
     private javax.swing.JLabel jLabelMaxBuild;
     private javax.swing.JLabel jLabelMaxFailedAttempt;
     private javax.swing.JLabel jLabelMinBuild;
     private javax.swing.JLabel jLabelPort;
+    private javax.swing.JLabel jLabelRole;
     private javax.swing.JLabel jLabelTimeout;
     private javax.swing.JLabel jLabelVersion;
     private javax.swing.JPanel jPanelLogin;

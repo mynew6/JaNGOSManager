@@ -19,6 +19,7 @@ import eu.jangos.manager.controller.AccountService;
 import eu.jangos.manager.controller.LocaleService;
 import eu.jangos.manager.controller.ParameterService;
 import eu.jangos.manager.controller.RealmService;
+import eu.jangos.manager.controller.RolesService;
 import eu.jangos.manager.controller.filters.BooleanType;
 import eu.jangos.manager.controller.filters.DateType;
 import eu.jangos.manager.gui.editor.cb.LocaleCellEditor;
@@ -31,13 +32,16 @@ import eu.jangos.manager.gui.renderer.cb.RealmCellRenderer;
 import eu.jangos.manager.model.Account;
 import eu.jangos.manager.model.Realm;
 import eu.jangos.manager.model.Locale;
+import eu.jangos.manager.model.Roles;
 import eu.jangos.manager.utils.ParameterConstants;
 import eu.jangos.manager.utils.Utils;
 import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
@@ -63,6 +67,8 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
     private final RealmService rs;
     private final LocaleService ls;
     private final ParameterService ps;
+    private final RolesService ros;
+   
     private Account manager;
 
     //private final JFrame parent;
@@ -79,6 +85,7 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
         this.rs = null;
         this.ls = null;
         this.ps = null;
+        this.ros = null;
         initComponents();
     }
 
@@ -90,12 +97,13 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
      * @param ps
      * @param ls
      */
-    public FrameManageAccount(AccountService as, RealmService rs, LocaleService ls, ParameterService ps) {
+    public FrameManageAccount(AccountService as, RealmService rs, LocaleService ls, ParameterService ps, RolesService ros) {
         this.manager = null;
         this.as = as;
         this.rs = rs;
         this.ls = ls;
         this.ps = ps;
+        this.ros = ros;
 
         initComponents();
 
@@ -846,12 +854,14 @@ public class FrameManageAccount extends javax.swing.JInternalFrame {
     }
 
     private void createAccount() {
+        Set<Roles> setRoles = new HashSet<Roles>();
+        setRoles.add(this.ros.getRole(this.ps.getParameter(ParameterConstants.KEY_DEFAULT_ROLE)));
         this.jTableAccountsModel.addRow(
                 new Account(
                         this.ls.getLocaleForString(this.ps.getParameter(ParameterConstants.KEY_DEFAULT_LOCALE)), null, "<Enter a name>", "<Enter a password>",
                         null, null, null, "<Give valid email>", new Date(),
                         "0.0.0.0", 0, false, new Date(), false,
-                        null, null, null, null, null));
+                        null, setRoles, null, null, null));
     }
 
     private void deleteAccount() {

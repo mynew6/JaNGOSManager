@@ -16,16 +16,19 @@ package eu.jangos.manager;
  * limitations under the License.
  */
 import eu.jangos.manager.controller.AccountService;
+import eu.jangos.manager.controller.CommandsService;
 import eu.jangos.manager.controller.LocaleService;
 import eu.jangos.manager.controller.ParameterService;
 import eu.jangos.manager.controller.RealmService;
 import eu.jangos.manager.controller.RealmTypeService;
+import eu.jangos.manager.controller.RolesService;
 import eu.jangos.manager.controller.TimezoneService;
 import eu.jangos.manager.controller.exception.LoginException;
 import eu.jangos.manager.gui.dialog.DialogAbout;
 import eu.jangos.manager.gui.frame.FrameManageAccount;
 import eu.jangos.manager.gui.frame.FrameManageRealm;
 import eu.jangos.manager.gui.frame.FrameAuthenticationParameters;
+import eu.jangos.manager.gui.frame.FrameManageRoles;
 import eu.jangos.manager.model.Account;
 import eu.jangos.manager.utils.Utils;
 import java.awt.Dimension;
@@ -52,6 +55,8 @@ public class JaNGOSManager extends JFrame {
     private static final ParameterService ps = new ParameterService();
     private static final RealmTypeService rts = new RealmTypeService();
     private static final TimezoneService ts = new TimezoneService();
+    private static final CommandsService cs = new CommandsService();
+    private static final RolesService ros = new RolesService();
 
     // This variable represent the logged in account.
     private static Account account;
@@ -77,12 +82,12 @@ public class JaNGOSManager extends JFrame {
 
         dialogLogin = new eu.jangos.manager.gui.dialog.DialogLogin();
         jDesktopMainPane = new javax.swing.JDesktopPane();
-        fManageAccount = new FrameManageAccount(this.as, this.rs, this.ls, this.ps)
+        fManageAccount = new FrameManageAccount(this.as, this.rs, this.ls, this.ps, this.ros)
         ;
         fManageRealm = new FrameManageRealm(this.rs, this.rts, this.ts);
         ;
-        fAuthenticationParameters = new FrameAuthenticationParameters(this.ps, this.ls);
-        fManageRoles = new eu.jangos.manager.gui.frame.FrameManageRoles();
+        fAuthenticationParameters = new FrameAuthenticationParameters(this.ps, this.ls, this.ros);
+        fManageRoles = new FrameManageRoles(this.cs, this.ros);
         jMenuBar = new javax.swing.JMenuBar();
         jMenuFile = new javax.swing.JMenu();
         jMenuDisconnect = new javax.swing.JMenuItem();
@@ -153,16 +158,11 @@ public class JaNGOSManager extends JFrame {
         jDesktopMainPane.add(fAuthenticationParameters);
         fAuthenticationParameters.setBounds(50, 110, 333, 253);
 
-        fManageRoles.setClosable(true);
-        fManageRoles.setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
-        fManageRoles.setIconifiable(true);
-        fManageRoles.setMaximizable(true);
-        fManageRoles.setResizable(true);
-        fManageRoles.setMaximumSize(new java.awt.Dimension(416, 334));
-        fManageRoles.setMinimumSize(new java.awt.Dimension(416, 334));
+        fManageRoles.setMinimumSize(new java.awt.Dimension(720, 480));
+        fManageRoles.setPreferredSize(new java.awt.Dimension(720, 480));
         fManageRoles.setVisible(false);
         jDesktopMainPane.add(fManageRoles);
-        fManageRoles.setBounds(240, 80, 416, 334);
+        fManageRoles.setBounds(240, 80, 720, 480);
 
         getContentPane().add(jDesktopMainPane, java.awt.BorderLayout.CENTER);
 

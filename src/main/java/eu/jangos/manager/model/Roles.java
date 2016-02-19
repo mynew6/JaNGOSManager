@@ -86,11 +86,18 @@ public class Roles  implements java.io.Serializable {
         if (!Objects.equals(this.id, other.id)) {
             return false;
         }
+        
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        
         return true;
     }
 
-
-
+    @Override
+    public String toString() {
+        return this.name;
+    }
 
 }
 

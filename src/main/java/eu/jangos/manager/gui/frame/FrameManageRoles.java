@@ -15,53 +15,100 @@
  */
 package eu.jangos.manager.gui.frame;
 
+import eu.jangos.manager.controller.CommandsService;
+import eu.jangos.manager.controller.RolesService;
 import eu.jangos.manager.gui.selection.tree.CheckTreeManager;
-import javax.swing.JTree;
+import eu.jangos.manager.model.Commands;
+import eu.jangos.manager.model.Roles;
+import eu.jangos.manager.utils.ParameterConstants;
+import eu.jangos.manager.utils.Utils;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreePath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * FrameManageRoles is the frame handling all commands assignment to roles.
+ *
  * @author Warkdev
  * @version 1.0
  * @since 17-02-2016
  */
 public class FrameManageRoles extends javax.swing.JInternalFrame {
 
+    private static final Logger logger = LoggerFactory.getLogger(FrameManageRoles.class);
+    private static final String ICON_IMAGE = "/images/lock.png";
+    
+    private final CommandsService cs;
+    private final RolesService rs;
+
     /**
      * Creates new form FrameManageRoles
      */
     public FrameManageRoles() {
         initComponents();
-        
-        DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("All");    
-        
-        DefaultMutableTreeNode  child = new DefaultMutableTreeNode("Realm");
-        child.add(new DefaultMutableTreeNode("login"));
-        child.add(new DefaultMutableTreeNode("test"));
-        child.add(new DefaultMutableTreeNode("test2"));
-        child.add(new DefaultMutableTreeNode("test3"));
-        child.add(new DefaultMutableTreeNode("test5"));
-        rootNode.add(child);
-        
-        DefaultMutableTreeNode child2 = new DefaultMutableTreeNode("Parameters");
-        child2.add(new DefaultMutableTreeNode("create"));
-        child2.add(new DefaultMutableTreeNode("delete"));
-        child2.add(new DefaultMutableTreeNode("update"));
-        child2.add(new DefaultMutableTreeNode("test3"));
-        child2.add(new DefaultMutableTreeNode("test5"));
-        rootNode.add(child2);
-        DefaultTreeModel treeModel = new DefaultTreeModel(rootNode);
-        
-        this.jTreeCommands.setModel(treeModel);
-        //this.jTreeCommands = new JTree(treeModel);
-        
+
+        this.cs = null;      
+        this.rs = null;
+
         checkTreeManager = new CheckTreeManager(this.jTreeCommands);
-        
-        
     }
 
+    public FrameManageRoles(CommandsService cs, RolesService rs) {
+        initComponents();
+        this.cs = cs;
+        this.rs = rs;
+
+        this.setFrameIcon(Utils.createImageIcon(ICON_IMAGE, getClass()));
+        
+        buildTree();
+        buildRoles();
+        
+        checkTreeManager = new CheckTreeManager(this.jTreeCommands);                                        
+    }
+
+    private void buildTree() {
+        DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(this.cs.getRootCommands());
+
+        List<Commands> listCommands = this.cs.getAllCommands();
+
+        String category = "";
+        String[] split;
+        DefaultMutableTreeNode current = null;
+
+        for (Commands c : listCommands) {
+            split = c.getName().split(ParameterConstants.COMMAND_SEPARATOR);
+            if (!category.equals(split[0])) {
+                category = split[0];
+                current = new DefaultMutableTreeNode(category);
+                rootNode.add(current);
+            }
+
+            current.add(new DefaultMutableTreeNode(c));
+        }
+
+        DefaultTreeModel treeModel = new DefaultTreeModel(rootNode);
+
+        this.jTreeCommands.clearSelection();
+        this.jTreeCommands.setModel(treeModel);
+    }
+
+    private void buildRoles() {
+        for(Roles r : this.rs.getAllRoles())
+        {
+            this.listRoles.addElement(r);
+        }
+        this.jListRoles.setModel(this.listRoles);
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -71,39 +118,325 @@ public class FrameManageRoles extends javax.swing.JInternalFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        dialogRoles = new eu.jangos.manager.gui.dialog.DialogRoles();
+        jPanelRoles = new javax.swing.JPanel();
+        jPanelControls = new javax.swing.JPanel();
+        jButtonNew = new javax.swing.JButton();
+        jButtonDelete = new javax.swing.JButton();
+        jButtonSave = new javax.swing.JButton();
+        jScrollPaneRoles = new javax.swing.JScrollPane();
+        jListRoles = new javax.swing.JList();
+        jPanelRolesDescription = new javax.swing.JPanel();
+        jTextAreaRoleDescription = new javax.swing.JTextArea();
         jScrollPaneCommands = new javax.swing.JScrollPane();
         jTreeCommands = new javax.swing.JTree();
+        jPanelDescription = new javax.swing.JPanel();
+        jTextAreaDescription = new javax.swing.JTextArea();
 
+        dialogRoles.setMinimumSize(new java.awt.Dimension(429, 240));
+        dialogRoles.setResizable(false);
+        dialogRoles.addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                dialogRolesWindowClosed(evt);
+            }
+        });
+
+        setClosable(true);
+        setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
+        setIconifiable(true);
+        setMaximizable(true);
+        setResizable(true);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("eu/jangos/manager/Bundle"); // NOI18N
         setTitle(bundle.getString("FrameManageRoles.title")); // NOI18N
+        setMinimumSize(new java.awt.Dimension(599, 456));
 
+        jPanelRoles.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("FrameManageRoles.jPanelRoles.border.title"))); // NOI18N
+        jPanelRoles.setMaximumSize(new java.awt.Dimension(651651, 56141651));
+        jPanelRoles.setMinimumSize(new java.awt.Dimension(250, 56141651));
+        jPanelRoles.setPreferredSize(new java.awt.Dimension(250, 56141651));
+        jPanelRoles.setLayout(new javax.swing.BoxLayout(jPanelRoles, javax.swing.BoxLayout.PAGE_AXIS));
+
+        jPanelControls.setMaximumSize(new java.awt.Dimension(190, 35));
+        jPanelControls.setPreferredSize(new java.awt.Dimension(190, 35));
+
+        jButtonNew.setText(bundle.getString("FrameManageRoles.jButtonNew.text")); // NOI18N
+        jButtonNew.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonNewActionPerformed(evt);
+            }
+        });
+        jPanelControls.add(jButtonNew);
+
+        jButtonDelete.setText(bundle.getString("FrameManageRoles.jButtonDelete.text")); // NOI18N
+        jButtonDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDeleteActionPerformed(evt);
+            }
+        });
+        jPanelControls.add(jButtonDelete);
+
+        jButtonSave.setText(bundle.getString("FrameManageRoles.jButtonSave.text")); // NOI18N
+        jButtonSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSaveActionPerformed(evt);
+            }
+        });
+        jPanelControls.add(jButtonSave);
+
+        jPanelRoles.add(jPanelControls);
+
+        jListRoles.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jListRoles.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                jListRolesValueChanged(evt);
+            }
+        });
+        jScrollPaneRoles.setViewportView(jListRoles);
+
+        jPanelRoles.add(jScrollPaneRoles);
+
+        jPanelRolesDescription.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("FrameManageRoles.jPanelRolesDescription.border.title"))); // NOI18N
+        jPanelRolesDescription.setMaximumSize(new java.awt.Dimension(250, 150));
+        jPanelRolesDescription.setMinimumSize(new java.awt.Dimension(250, 150));
+        jPanelRolesDescription.setPreferredSize(null);
+        jPanelRolesDescription.setLayout(new javax.swing.BoxLayout(jPanelRolesDescription, javax.swing.BoxLayout.PAGE_AXIS));
+
+        jTextAreaRoleDescription.setEditable(false);
+        jTextAreaRoleDescription.setBackground(new java.awt.Color(240, 240, 240));
+        jTextAreaRoleDescription.setColumns(20);
+        jTextAreaRoleDescription.setLineWrap(true);
+        jTextAreaRoleDescription.setRows(5);
+        jTextAreaRoleDescription.setBorder(null);
+        jTextAreaRoleDescription.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        jTextAreaRoleDescription.setEnabled(false);
+        jTextAreaRoleDescription.setMaximumSize(new java.awt.Dimension(200, 90));
+        jTextAreaRoleDescription.setMinimumSize(new java.awt.Dimension(200, 90));
+        jTextAreaRoleDescription.setPreferredSize(null);
+        jPanelRolesDescription.add(jTextAreaRoleDescription);
+
+        jPanelRoles.add(jPanelRolesDescription);
+
+        getContentPane().add(jPanelRoles, java.awt.BorderLayout.WEST);
+
+        jScrollPaneCommands.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("FrameManageRoles.jScrollPaneCommands.border.title"))); // NOI18N
+        jScrollPaneCommands.setMaximumSize(new java.awt.Dimension(250, 616516651));
+        jScrollPaneCommands.setMinimumSize(new java.awt.Dimension(250, 100));
+
+        jTreeCommands.setPreferredSize(null);
         jTreeCommands.setShowsRootHandles(true);
+        jTreeCommands.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+                jTreeCommandsValueChanged(evt);
+            }
+        });
         jScrollPaneCommands.setViewportView(jTreeCommands);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(247, Short.MAX_VALUE)
-                .addComponent(jScrollPaneCommands, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPaneCommands, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(14, Short.MAX_VALUE))
-        );
+        getContentPane().add(jScrollPaneCommands, java.awt.BorderLayout.CENTER);
+
+        jPanelDescription.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("FrameManageRoles.jPanelDescription.border.title"))); // NOI18N
+        jPanelDescription.setMaximumSize(new java.awt.Dimension(100, 100));
+        jPanelDescription.setMinimumSize(new java.awt.Dimension(100, 100));
+        jPanelDescription.setLayout(new javax.swing.BoxLayout(jPanelDescription, javax.swing.BoxLayout.PAGE_AXIS));
+
+        jTextAreaDescription.setEditable(false);
+        jTextAreaDescription.setBackground(new java.awt.Color(240, 240, 240));
+        jTextAreaDescription.setColumns(20);
+        jTextAreaDescription.setLineWrap(true);
+        jTextAreaDescription.setRows(5);
+        jTextAreaDescription.setBorder(null);
+        jTextAreaDescription.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        jTextAreaDescription.setEnabled(false);
+        jTextAreaDescription.setMaximumSize(new java.awt.Dimension(651651, 56141651));
+        jTextAreaDescription.setMinimumSize(new java.awt.Dimension(150, 56141651));
+        jPanelDescription.add(jTextAreaDescription);
+
+        getContentPane().add(jPanelDescription, java.awt.BorderLayout.LINE_END);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jTreeCommandsValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTreeCommandsValueChanged
+       if (evt.getNewLeadSelectionPath() != null && evt.getNewLeadSelectionPath().getLastPathComponent() instanceof DefaultMutableTreeNode) {
+            Object selection = ((DefaultMutableTreeNode) evt.getNewLeadSelectionPath().getLastPathComponent()).getUserObject();
 
+            if (selection instanceof String) {
+                this.jTextAreaDescription.setText("");
+            } else if (selection instanceof Commands) {
+                this.jTextAreaDescription.setText(((Commands) selection).getDescription());
+            }            
+        }              
+    }//GEN-LAST:event_jTreeCommandsValueChanged
+
+    private void jButtonNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNewActionPerformed
+        this.dialogRoles.setLocationRelativeTo(this);
+        this.dialogRoles.setVisible(true);
+    }//GEN-LAST:event_jButtonNewActionPerformed
+
+    private void jButtonDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteActionPerformed
+        if(this.jListRoles.getSelectedValue() != null)
+        {
+            Roles role = (Roles) this.jListRoles.getSelectedValue();
+            this.listRoles.removeElement(role);
+            this.rs.delete(role.getId());
+        }
+    }//GEN-LAST:event_jButtonDeleteActionPerformed
+
+    private void jButtonSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSaveActionPerformed
+        if(this.checkTreeManager.getSelectionModel().getSelectionPaths() != null && this.jListRoles.getSelectedValue() != null)
+        {
+            Roles r = (Roles) this.jListRoles.getSelectedValue();
+            Set<Commands> setCommands = new HashSet<Commands>();
+            for(TreePath path : this.checkTreeManager.getSelectionModel().getSelectionPaths())
+            {                
+                if(path.getPath().length == 1)
+                {
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getPath()[0];
+                    
+                    // Only the root is selected
+                    setCommands.add((Commands) node.getUserObject());
+                } else if (path.getPath().length == 2) {
+                    // A middle leaf is selected (so including all the commands)
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getPath()[1];
+                    
+                    Enumeration iterator = node.children();
+                    while(iterator.hasMoreElements())
+                    {
+                        setCommands.add((Commands) ((DefaultMutableTreeNode) iterator.nextElement()).getUserObject());
+                    }
+                    
+                } else if (path.getPath().length == 3) {
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getPath()[2];                                        
+                    
+                    // A final leaf is selected, this is a command object.
+                    setCommands.add((Commands) node.getUserObject());
+                }
+            }
+            
+            r.setCommandses(setCommands);
+            this.rs.save(r);
+        }
+    }//GEN-LAST:event_jButtonSaveActionPerformed
+
+    private void dialogRolesWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_dialogRolesWindowClosed
+        if(this.dialogRoles.getCode() == JOptionPane.OK_OPTION)
+        {
+            Roles role = new Roles(this.dialogRoles.getName(), this.dialogRoles.getDescription());
+            
+            if(role.getName().isEmpty())
+            {
+                showError("Validation error","You must enter a name.");
+                jButtonNewActionPerformed(null);
+                return;
+            }
+            
+            if(role.getDescription().isEmpty())
+            {
+                showError("Validation error","You must enter a description.");
+                jButtonNewActionPerformed(null);
+                return;
+            }
+            
+            if(this.rs.exists(role.getName()))
+            {
+                showError("Validation error","The role that you are trying to create already exists.");
+                jButtonNewActionPerformed(null);
+                return;
+            }
+            
+            role = this.rs.save(role);
+            boolean added = false;
+            for(int i = 0; i < this.listRoles.getSize(); i++)
+            {
+                if(this.listRoles.getElementAt(i).getName().compareToIgnoreCase(role.getName()) > 0)
+                {
+                    added = true;
+                    this.listRoles.insertElementAt(role, i);  
+                    break;
+                }
+            }            
+            
+            if(!added)
+            {
+                this.listRoles.addElement(role);
+            }
+            
+            this.dialogRoles.reset();
+        }
+    }//GEN-LAST:event_dialogRolesWindowClosed
+
+    private void jListRolesValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jListRolesValueChanged
+        if(this.jListRoles.getSelectedValue() != null)
+        {
+            Roles role = (Roles) this.jListRoles.getSelectedValue();
+            role = this.rs.getRoleWithCommands(role.getId());
+            this.jTextAreaRoleDescription.setText(role.getDescription());
+            this.checkTreeManager.getSelectionModel().clearSelection();
+            for(Object c : role.getCommandses())
+            {
+                Commands command = (Commands) c;                                                                                                           
+                
+                Object[] path = null;
+                if(command.getName().equals("all"))
+                {
+                    path = new Object[]{this.jTreeCommands.getModel().getRoot()};
+                } else {
+                    Enumeration iterator = ((DefaultMutableTreeNode) (this.jTreeCommands.getModel().getRoot())).children();
+                    boolean found = false;
+                    while(iterator.hasMoreElements() && !found)
+                    {
+                        DefaultMutableTreeNode node = (DefaultMutableTreeNode) iterator.nextElement();                        
+                        if(node.getUserObject() instanceof String)
+                        {
+                            String category = (String) node.getUserObject();
+                            if(category.equals(command.getName().split(ParameterConstants.COMMAND_SEPARATOR)[0]))
+                            {                                                                
+                                Enumeration childIterator = ((DefaultMutableTreeNode) node).children();
+                                
+                                while(childIterator.hasMoreElements() && !found)
+                                {
+                                    DefaultMutableTreeNode child = (DefaultMutableTreeNode) childIterator.nextElement();                                                                          
+                                    
+                                    if(child.getUserObject() instanceof Commands && child.getUserObject().equals(command))
+                                    {
+                                        found = true;
+                                        path = new Object[]{this.jTreeCommands.getModel().getRoot(), node, child};
+                                    }
+                                }                                                                
+                            }
+                        }
+                    }                                         
+                }
+                
+                if(path != null)
+                    this.checkTreeManager.getSelectionModel().addSelectionPath(new TreePath(path));
+            }
+        }
+    }//GEN-LAST:event_jListRolesValueChanged
+
+    private void showWarning(String title, String message) {
+        JOptionPane.showMessageDialog(this, message, title, JOptionPane.WARNING_MESSAGE);
+    }
+
+    private void showError(String title, String message) {
+        JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private eu.jangos.manager.gui.dialog.DialogRoles dialogRoles;
+    private javax.swing.JButton jButtonDelete;
+    private javax.swing.JButton jButtonNew;
+    private javax.swing.JButton jButtonSave;
+    private javax.swing.JList jListRoles;
+    private javax.swing.JPanel jPanelControls;
+    private javax.swing.JPanel jPanelDescription;
+    private javax.swing.JPanel jPanelRoles;
+    private javax.swing.JPanel jPanelRolesDescription;
     private javax.swing.JScrollPane jScrollPaneCommands;
+    private javax.swing.JScrollPane jScrollPaneRoles;
+    private javax.swing.JTextArea jTextAreaDescription;
+    private javax.swing.JTextArea jTextAreaRoleDescription;
     private javax.swing.JTree jTreeCommands;
     // End of variables declaration//GEN-END:variables
     private CheckTreeManager checkTreeManager;
+    private DefaultListModel<Roles> listRoles = new DefaultListModel<>();
 }

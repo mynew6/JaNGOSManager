@@ -1,5 +1,6 @@
 package eu.jangos.manager.model;
 
+import eu.jangos.manager.utils.ParameterConstants;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -80,8 +81,10 @@ public class Commands  implements java.io.Serializable {
         return true;
     }
 
-
-
+    @Override
+    public String toString() {
+        return this.name.split(ParameterConstants.COMMAND_SEPARATOR)[this.name.split(ParameterConstants.COMMAND_SEPARATOR).length-1];
+    }
 
 }
 

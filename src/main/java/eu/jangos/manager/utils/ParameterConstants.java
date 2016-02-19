@@ -30,4 +30,7 @@ public class ParameterConstants {
     public static final String KEY_MAX_SUPPORTED_BUILD = "maxSupportedBuild";
     public static final String KEY_MAX_FAILED_ATTEMPT = "maxFailedAttempt";
     public static final String KEY_AUTH_TIMEOUT = "authTimeout";
+    public static final String KEY_DEFAULT_ROLE = "defaultRole";
+    
+    public static final String COMMAND_SEPARATOR = ":";
 }

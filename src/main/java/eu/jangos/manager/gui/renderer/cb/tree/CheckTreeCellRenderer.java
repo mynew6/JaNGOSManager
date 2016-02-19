@@ -27,7 +27,7 @@ import javax.swing.tree.TreePath;
  *
  * @author Warkdev
  */
-public class CheckTreeCellRenderer extends JPanel implements TreeCellRenderer{ 
+public class CheckTreeCellRenderer extends JPanel implements TreeCellRenderer { 
     private CheckTreeSelectionModel selectionModel; 
     private TreeCellRenderer delegate; 
     private TristateCheckBox checkBox = new TristateCheckBox(); 
@@ -47,9 +47,9 @@ public class CheckTreeCellRenderer extends JPanel implements TreeCellRenderer{
         TreePath path = tree.getPathForRow(row); 
         if(path!=null){ 
             if(selectionModel.isPathSelected(path, true)) 
-                checkBox.setState(TristateCheckBox.NOT_SELECTED); 
+                checkBox.setState(TristateCheckBox.SELECTED); 
             else 
-                checkBox.setState(selectionModel.isPartiallySelected(path) ? TristateCheckBox.DONT_CARE : TristateCheckBox.SELECTED); 
+                checkBox.setState(selectionModel.isPartiallySelected(path) ? TristateCheckBox.DONT_CARE : TristateCheckBox.NOT_SELECTED); 
         } 
         removeAll(); 
         add(checkBox, BorderLayout.WEST); 
